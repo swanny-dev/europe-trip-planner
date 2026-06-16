@@ -733,10 +733,12 @@ function render() {
   saveTrip();
   const lockedRole = roleFromUrl();
   appShell.dataset.theme = trip.theme;
-  themeSelect.value = trip.theme;
-  viewerRoleSelect.value = viewerRole();
-  viewerRoleSelect.disabled = Boolean(lockedRole);
-  viewerRoleSelect.title = lockedRole ? "This role is set by the share link" : "";
+  if (themeSelect) themeSelect.value = trip.theme;
+  if (viewerRoleSelect) {
+    viewerRoleSelect.value = viewerRole();
+    viewerRoleSelect.disabled = Boolean(lockedRole);
+    viewerRoleSelect.title = lockedRole ? "This role is set by the share link" : "";
+  }
   tripTitle.textContent = trip.title;
   renderSummary();
   renderSettings();
@@ -1771,12 +1773,12 @@ tabs.forEach((tab) => {
   });
 });
 
-themeSelect.addEventListener("change", () => {
+themeSelect?.addEventListener("change", () => {
   trip.theme = themeSelect.value;
   render();
 });
 
-viewerRoleSelect.addEventListener("change", () => {
+viewerRoleSelect?.addEventListener("change", () => {
   localStorage.setItem("europe-trip-viewer-role", viewerRoleSelect.value);
   renderDestinations();
 });
