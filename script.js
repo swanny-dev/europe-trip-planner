@@ -8,6 +8,7 @@ const sampleTrip = {
   theme: "coast",
   scenario: "balanced",
   bufferPercent: 12,
+  whiteboardCanvas: { width: 1040, height: 780 },
   whiteboardNotes: [],
   destinations: [
     {
@@ -596,7 +597,10 @@ const quoteList = document.querySelector("#quoteList");
 const budgetSnapshot = document.querySelector("#budgetSnapshot");
 const syncStatus = document.querySelector("#syncStatus");
 const whiteboardForm = document.querySelector("#whiteboardForm");
+const whiteboardViewport = document.querySelector("#whiteboardViewport");
 const whiteboardBoard = document.querySelector("#whiteboardBoard");
+const expandBoardBtn = document.querySelector("#expandBoardBtn");
+const tidyBoardBtn = document.querySelector("#tidyBoardBtn");
 
 let remoteReady = false;
 let applyingRemoteTrip = false;
@@ -1019,6 +1023,7 @@ function renderAssumptions() {
 
 function renderWhiteboard() {
   if (!whiteboardBoard) return;
+  applyWhiteboardCanvasSize();
   whiteboardBoard.innerHTML = "";
   if (!trip.whiteboardNotes.length) {
     whiteboardBoard.innerHTML = `<div class="empty-board">No pins yet. Add the messy stuff here before it becomes a real destination or idea.</div>`;
@@ -1112,6 +1117,7 @@ function createWhiteboardNoteCard(note) {
 }
 
 function applyWhiteboardNoteStyle(card, note) {
+  ensureWhiteboardCanvasFits(note);
   card.style.left = `${note.x}px`;
   card.style.top = `${note.y}px`;
   card.style.width = `${note.width}px`;
@@ -1134,7 +1140,6 @@ function startWhiteboardPointer(event, note, card, mode) {
   activeWhiteboardNoteId = note.id;
   bringWhiteboardNoteToFront(note, card);
   card.classList.add("is-moving");
-  const boardRect = whiteboardBoard.getBoundingClientRect();
   const start = {
     x: event.clientX,
     y: event.clientY,
@@ -1145,12 +1150,13 @@ function startWhiteboardPointer(event, note, card, mode) {
   };
   const onMove = (moveEvent) => {
     if (mode === "move") {
-      note.x = clamp(start.noteX + moveEvent.clientX - start.x, 8, Math.max(8, boardRect.width - note.width - 8));
-      note.y = clamp(start.noteY + moveEvent.clientY - start.y, 8, Math.max(8, boardRect.height - note.height - 8));
+      note.x = Math.max(8, start.noteX + moveEvent.clientX - start.x);
+      note.y = Math.max(8, start.noteY + moveEvent.clientY - start.y);
     } else {
-      note.width = clamp(start.width + moveEvent.clientX - start.x, 190, Math.max(190, boardRect.width - note.x - 8));
-      note.height = clamp(start.height + moveEvent.clientY - start.y, 150, Math.max(150, boardRect.height - note.y - 8));
+      note.width = Math.max(190, start.width + moveEvent.clientX - start.x);
+      note.height = Math.max(150, start.height + moveEvent.clientY - start.y);
     }
+    ensureWhiteboardCanvasFits(note, 180);
     applyWhiteboardNoteStyle(card, note);
   };
   const onUp = () => {
@@ -1161,6 +1167,54 @@ function startWhiteboardPointer(event, note, card, mode) {
   };
   window.addEventListener("pointermove", onMove);
   window.addEventListener("pointerup", onUp);
+}
+
+function applyWhiteboardCanvasSize() {
+  trip.whiteboardCanvas = normalizeWhiteboardCanvas(trip.whiteboardCanvas);
+  whiteboardBoard.style.width = `${trip.whiteboardCanvas.width}px`;
+  whiteboardBoard.style.height = `${trip.whiteboardCanvas.height}px`;
+}
+
+function ensureWhiteboardCanvasFits(note, padding = 140) {
+  if (!whiteboardBoard) return;
+  trip.whiteboardCanvas = normalizeWhiteboardCanvas(trip.whiteboardCanvas);
+  const neededWidth = Math.ceil(Number(note.x || 0) + Number(note.width || 0) + padding);
+  const neededHeight = Math.ceil(Number(note.y || 0) + Number(note.height || 0) + padding);
+  let changed = false;
+  if (neededWidth > trip.whiteboardCanvas.width) {
+    trip.whiteboardCanvas.width = neededWidth;
+    changed = true;
+  }
+  if (neededHeight > trip.whiteboardCanvas.height) {
+    trip.whiteboardCanvas.height = neededHeight;
+    changed = true;
+  }
+  if (changed) applyWhiteboardCanvasSize();
+}
+
+function expandWhiteboardCanvas(widthStep = 360, heightStep = 280) {
+  trip.whiteboardCanvas = normalizeWhiteboardCanvas(trip.whiteboardCanvas);
+  trip.whiteboardCanvas.width += widthStep;
+  trip.whiteboardCanvas.height += heightStep;
+  applyWhiteboardCanvasSize();
+  saveTrip();
+}
+
+function tidyWhiteboardCanvas() {
+  trip.whiteboardCanvas = normalizeWhiteboardCanvas(trip.whiteboardCanvas);
+  const maxRight = Math.max(0, ...trip.whiteboardNotes.map((note) => Number(note.x || 0) + Number(note.width || 0)));
+  const maxBottom = Math.max(0, ...trip.whiteboardNotes.map((note) => Number(note.y || 0) + Number(note.height || 0)));
+  trip.whiteboardCanvas.width = Math.max(1040, Math.ceil(maxRight + 180));
+  trip.whiteboardCanvas.height = Math.max(780, Math.ceil(maxBottom + 180));
+  applyWhiteboardCanvasSize();
+  saveTrip();
+}
+
+function normalizeWhiteboardCanvas(canvas) {
+  return {
+    width: clampNumber(canvas?.width, 1040, 760, 6000),
+    height: clampNumber(canvas?.height, 780, 560, 5000)
+  };
 }
 
 function bringWhiteboardNoteToFront(note, card) {
@@ -1178,10 +1232,10 @@ function normalizeWhiteboardNote(note, index) {
     text: String(note.text || ""),
     author: note.author || initials(viewerName()),
     createdAt: note.createdAt || new Date().toISOString(),
-    x: clampNumber(note.x, 28 + col * 270, 0, 900),
-    y: clampNumber(note.y, 28 + row * 220, 0, 620),
-    width: clampNumber(note.width, 240, 190, 420),
-    height: clampNumber(note.height, 180, 150, 360),
+    x: clampNumber(note.x, 28 + col * 270, 0, 5800),
+    y: clampNumber(note.y, 28 + row * 220, 0, 4800),
+    width: clampNumber(note.width, 240, 190, 900),
+    height: clampNumber(note.height, 180, 150, 720),
     color: whiteboardPalette.includes(note.color) ? note.color : whiteboardPalette[index % whiteboardPalette.length],
     fontFamily: whiteboardFonts[note.fontFamily] ? note.fontFamily : "casual",
     fontSize: clampNumber(note.fontSize, 22, 16, 34),
@@ -1891,6 +1945,7 @@ function normalizeTrip() {
   trip.stopoverId = stopoverOptions.some((option) => option.id === trip.stopoverId) ? trip.stopoverId : "";
   trip.returnStopoverId = stopoverOptions.some((option) => option.id === trip.returnStopoverId) ? trip.returnStopoverId : "";
   trip.flightQuotes = trip.flightQuotes || [];
+  trip.whiteboardCanvas = normalizeWhiteboardCanvas(trip.whiteboardCanvas);
   trip.whiteboardNotes = (trip.whiteboardNotes || [])
     .map(normalizeWhiteboardNote)
     .filter((note) => note.text.trim());
@@ -2136,6 +2191,14 @@ whiteboardForm?.querySelectorAll("[data-new-note-color]").forEach((button) => {
     field(whiteboardForm, "color").value = button.dataset.newNoteColor;
     whiteboardForm.querySelectorAll("[data-new-note-color]").forEach((entry) => entry.classList.toggle("is-selected", entry === button));
   });
+});
+
+expandBoardBtn?.addEventListener("click", () => {
+  expandWhiteboardCanvas();
+});
+
+tidyBoardBtn?.addEventListener("click", () => {
+  tidyWhiteboardCanvas();
 });
 
 document.querySelector("#addStopBtn").addEventListener("click", () => {

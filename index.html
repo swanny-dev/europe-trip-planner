@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Europe 2027 Trip Planner</title>
     <link rel="icon" href="assets/euro-avocado.png" />
-    <link rel="stylesheet" href="styles.css?v=28" />
+    <link rel="stylesheet" href="styles.css?v=29" />
   </head>
   <body>
     <div class="app-shell" data-theme="coast">
@@ -290,9 +290,15 @@
                 <button type="button" class="swatch" data-new-note-color="#cfe9ff" style="--swatch: #cfe9ff" title="Blue"></button>
                 <button type="button" class="swatch" data-new-note-color="#eadcff" style="--swatch: #eadcff" title="Lilac"></button>
               </div>
+              <div class="board-space-actions">
+                <button type="button" class="secondary-button" id="expandBoardBtn">Expand grid</button>
+                <button type="button" class="ghost-button" id="tidyBoardBtn">Tidy size</button>
+              </div>
               <button type="submit" class="primary-button">Pin note</button>
             </form>
-            <div class="whiteboard-board" id="whiteboardBoard"></div>
+            <div class="whiteboard-viewport" id="whiteboardViewport">
+              <div class="whiteboard-board" id="whiteboardBoard"></div>
+            </div>
           </div>
         </section>
 
@@ -415,6 +421,6 @@
         </article>
       </template>
     </div>
-    <script src="script.js?v=28"></script>
+    <script src="script.js?v=29"></script>
   </body>
 </html>
