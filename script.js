@@ -554,25 +554,20 @@ function createIdeaItem(destinationId, idea) {
       <strong>${idea.title}</strong>
       <p class="idea-meta">${idea.theme} - ${money(idea.cost)}</p>
     </div>
-    ${scheduleDetails(`${idea.title} date range`, startDate, endDate, "Schedule", "idea-schedule")}
+    ${scheduleDetails(`${idea.title} date range`, startDate, endDate, "Set dates", "idea-schedule")}
     <div class="vote-buttons">
       <button class="vote-button ${idea.votes[0] ? "is-active" : ""}" data-voter="0" title="${trip.travelerA} vote" ${role !== "ruairi" ? "disabled" : ""}>${initials(trip.travelerA)}</button>
       <button class="vote-button ${idea.votes[1] ? "is-active" : ""}" data-voter="1" title="${trip.travelerB} vote" ${role !== "maggie" ? "disabled" : ""}>${initials(trip.travelerB)}</button>
       <button class="delete-button" title="Delete idea">&times;</button>
     </div>
   `;
-  item.querySelectorAll(".date-range-fields input").forEach((input) => {
-    input.addEventListener("input", () => {
-      if (input.dataset.dateField === "start") {
-        idea.startDate = input.value;
-        idea.date = input.value;
-      } else {
-        idea.endDate = input.value;
-      }
+  attachScheduleControl(item.querySelector(".schedule-details"), ({ startDate: nextStartDate, endDate: nextEndDate }) => {
+    idea.startDate = nextStartDate;
+    idea.date = nextStartDate;
+    idea.endDate = nextEndDate;
       saveTrip();
       renderTimingMatrix();
       renderFlights();
-    });
   });
   item.querySelectorAll(".vote-button").forEach((button) => {
     button.addEventListener("click", () => {
@@ -712,7 +707,7 @@ function renderItinerary() {
       <span class="stop-index">${index + 1}</span>
       <select aria-label="Destination">${trip.destinations.map((entry) => `<option value="${entry.id}" ${entry.id === stop.destinationId ? "selected" : ""}>${entry.name}</option>`).join("")}</select>
       <strong>${destination?.nights || 0} nights</strong>
-      ${scheduleDetails(`${destination?.name || "Stop"} date range`, stop.startDate || "", stopEndDate || "", "Plan dates", "stop-schedule")}
+      ${scheduleDetails(`${destination?.name || "Stop"} date range`, stop.startDate || "", stopEndDate || "", "Set dates", "stop-schedule")}
       <input data-stop-note value="${escapeAttribute(stop.note || "")}" aria-label="Stop note" />
       <div class="itinerary-actions">
         <button class="move-button" title="Move up">&uarr;</button>
@@ -722,22 +717,22 @@ function renderItinerary() {
     `;
     const select = item.querySelector("select");
     const note = item.querySelector("[data-stop-note]");
-    const [upButton, downButton, deleteButton] = item.querySelectorAll("button");
+    const [upButton, downButton, deleteButton] = item.querySelectorAll(".itinerary-actions button");
     select.addEventListener("change", () => {
       stop.destinationId = select.value;
       stop.endDate = "";
       render();
     });
-    item.querySelectorAll(".date-range-fields input").forEach((input) => {
-      input.addEventListener("input", () => {
-        if (input.dataset.dateField === "start") {
-          stop.startDate = input.value;
-          if (index === 0) trip.startDate = input.value;
-        } else {
-          stop.endDate = input.value;
-        }
-        render();
-      });
+    attachScheduleControl(item.querySelector(".schedule-details"), ({ startDate: nextStartDate, endDate: nextEndDate }) => {
+      stop.startDate = nextStartDate;
+      stop.endDate = nextEndDate;
+      if (index === 0) trip.startDate = nextStartDate;
+      syncStartDateFromFirstStop();
+      saveTrip();
+      renderSettings();
+      renderFlights();
+    }, () => {
+      render();
     });
     note.addEventListener("input", () => {
       stop.note = note.value;
@@ -893,7 +888,7 @@ function renderTimingMatrix() {
         <span>${destination.nights} nights - ${selectedWindow.name}</span>
       </div>
       <div class="fit-score">${score}</div>
-      ${scheduleDetails(`${destination.name} date range`, stop.startDate || "", stopEndDate || "", "Plan dates", "timing-schedule")}
+      ${scheduleDetails(`${destination.name} date range`, stop.startDate || "", stopEndDate || "", "Set dates", "timing-schedule")}
       <p class="timing-note">${climate.note}</p>
       <details class="scheduled-ideas-block">
         <summary>${ideas.length ? `${ideas.length} idea${ideas.length === 1 ? "" : "s"} to place` : "No ideas placed yet"}</summary>
@@ -901,37 +896,31 @@ function renderTimingMatrix() {
           ${ideas.length ? ideas.map((idea) => `
             <div class="scheduled-idea-row" data-idea-id="${idea.id}">
               <span>${idea.title}</span>
-              ${scheduleDetails(`${idea.title} date range`, idea.startDate || idea.date || "", idea.endDate || "", "Idea dates", "idea-schedule")}
+              ${scheduleDetails(`${idea.title} date range`, idea.startDate || idea.date || "", idea.endDate || "", "Set dates", "idea-schedule")}
             </div>
           `).join("") : `<span class="mini-meta">Mutual yes ideas and manually dated ideas will appear here.</span>`}
         </div>
       </details>
     `;
-    row.querySelectorAll(".timing-schedule .date-range-fields input").forEach((input) => {
-      input.addEventListener("input", () => {
-        if (input.dataset.dateField === "start") {
-          stop.startDate = input.value;
-          if (stop === trip.itinerary[0]) trip.startDate = input.value;
-        } else {
-          stop.endDate = input.value;
-        }
-        render();
-      });
+    attachScheduleControl(row.querySelector(".timing-schedule"), ({ startDate: nextStartDate, endDate: nextEndDate }) => {
+      stop.startDate = nextStartDate;
+      stop.endDate = nextEndDate;
+      if (stop === trip.itinerary[0]) trip.startDate = nextStartDate;
+      saveTrip();
+      renderSettings();
+      renderFlights();
+    }, () => {
+      render();
     });
     row.querySelectorAll(".scheduled-idea-row").forEach((ideaRow) => {
-      ideaRow.querySelectorAll(".date-range-fields input").forEach((input) => {
-        input.addEventListener("input", () => {
+      attachScheduleControl(ideaRow.querySelector(".schedule-details"), ({ startDate: nextStartDate, endDate: nextEndDate }) => {
           const idea = destination.ideas.find((entry) => entry.id === ideaRow.dataset.ideaId);
           if (!idea) return;
-          if (input.dataset.dateField === "start") {
-            idea.startDate = input.value;
-            idea.date = input.value;
-          } else {
-            idea.endDate = input.value;
-          }
+          idea.startDate = nextStartDate;
+          idea.date = nextStartDate;
+          idea.endDate = nextEndDate;
           saveTrip();
           renderDestinations();
-        });
       });
     });
     timingMatrix.append(row);
@@ -1204,23 +1193,63 @@ function formatDateRange(start, end, fallback = "Schedule") {
 
 function scheduleDetails(ariaLabel, startDate, endDate, fallback, extraClass = "") {
   return `
-    <details class="schedule-details ${extraClass}">
+    <details class="schedule-details ${extraClass}" data-fallback="${escapeAttribute(fallback)}">
       <summary class="schedule-summary" aria-label="${escapeAttribute(ariaLabel)}">
-        <span class="schedule-icon">Date</span>
-        <span>${formatDateRange(startDate, endDate, fallback)}</span>
+        <span class="schedule-chip-text">${formatDateRange(startDate, endDate, fallback)}</span>
       </summary>
-      <div class="date-range-fields">
-        <label>
-          Start
-          <input type="date" data-date-field="start" value="${startDate || ""}" />
-        </label>
-        <label>
-          End
-          <input type="date" data-date-field="end" value="${endDate || ""}" />
-        </label>
+      <div class="schedule-popover">
+        <div class="schedule-popover-heading">
+          <strong>Choose dates</strong>
+          <span>Optional range</span>
+        </div>
+        <div class="date-range-fields">
+          <label>
+            Start
+            <input type="date" data-date-field="start" value="${startDate || ""}" />
+          </label>
+          <label>
+            End
+            <input type="date" data-date-field="end" value="${endDate || ""}" />
+          </label>
+        </div>
+        <div class="schedule-actions">
+          <button type="button" class="secondary-button" data-schedule-clear>Clear</button>
+          <button type="button" class="primary-button" data-schedule-done>Done</button>
+        </div>
       </div>
     </details>
   `;
+}
+
+function attachScheduleControl(details, onChange, onDone = () => {}) {
+  if (!details) return;
+  const startInput = details.querySelector('[data-date-field="start"]');
+  const endInput = details.querySelector('[data-date-field="end"]');
+  const clearButton = details.querySelector("[data-schedule-clear]");
+  const doneButton = details.querySelector("[data-schedule-done]");
+  const update = () => {
+    updateScheduleSummary(details);
+    onChange({ startDate: startInput?.value || "", endDate: endInput?.value || "" });
+  };
+  startInput?.addEventListener("input", update);
+  endInput?.addEventListener("input", update);
+  clearButton?.addEventListener("click", () => {
+    if (startInput) startInput.value = "";
+    if (endInput) endInput.value = "";
+    update();
+  });
+  doneButton?.addEventListener("click", () => {
+    update();
+    details.open = false;
+    onDone();
+  });
+}
+
+function updateScheduleSummary(details) {
+  const startDate = details.querySelector('[data-date-field="start"]')?.value || "";
+  const endDate = details.querySelector('[data-date-field="end"]')?.value || "";
+  const label = details.querySelector(".schedule-chip-text");
+  if (label) label.textContent = formatDateRange(startDate, endDate, details.dataset.fallback || "Set dates");
 }
 
 function dateFromDateInput(value) {

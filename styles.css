@@ -913,14 +913,14 @@ select {
   min-height: 36px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 7px;
+  justify-content: space-between;
+  gap: 10px;
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 0 10px;
+  padding: 0 12px;
   color: var(--accent);
-  background: #fff;
+  background: linear-gradient(180deg, #fff, rgba(246, 248, 246, 0.9));
   font-size: 0.78rem;
   font-weight: 900;
   cursor: pointer;
@@ -933,10 +933,13 @@ select {
 }
 
 .schedule-summary::after {
-  content: "v";
-  color: var(--muted);
-  font-size: 0.68rem;
-  font-weight: 950;
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  opacity: 0.66;
+  transform: translateY(-2px) rotate(45deg);
 }
 
 .schedule-details[open] .schedule-summary {
@@ -945,34 +948,48 @@ select {
 }
 
 .schedule-details[open] .schedule-summary::after {
-  content: "^";
+  transform: translateY(2px) rotate(225deg);
 }
 
-.schedule-icon {
-  display: inline-grid;
-  place-items: center;
-  border-radius: 999px;
-  padding: 3px 6px;
-  color: #fff;
-  background: var(--accent);
-  font-size: 0.62rem;
-  line-height: 1;
+.schedule-chip-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.date-range-fields {
+.schedule-popover {
   position: absolute;
   z-index: 12;
   top: calc(100% + 8px);
   right: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(132px, 1fr));
-  gap: 10px;
-  min-width: min(330px, calc(100vw - 42px));
+  min-width: min(360px, calc(100vw - 42px));
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
   box-shadow: var(--shadow);
+}
+
+.schedule-popover-heading {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.schedule-popover-heading strong {
+  font-size: 0.88rem;
+}
+
+.schedule-popover-heading span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.date-range-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(132px, 1fr));
+  gap: 10px;
 }
 
 .date-range-fields label {
@@ -987,6 +1004,19 @@ select {
   min-height: 36px;
   padding: 0 9px;
   font-size: 0.82rem;
+}
+
+.schedule-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.schedule-actions .primary-button,
+.schedule-actions .secondary-button {
+  min-height: 34px;
+  padding: 0 12px;
 }
 
 .idea-meta {
@@ -1287,7 +1317,7 @@ dialog::backdrop {
     grid-template-columns: 1fr 1fr;
   }
 
-  .date-range-fields {
+  .schedule-popover {
     left: 0;
     right: auto;
   }
@@ -1353,12 +1383,15 @@ dialog::backdrop {
     grid-template-columns: 1fr;
   }
 
-  .date-range-fields {
+  .schedule-popover {
     position: static;
-    grid-template-columns: 1fr;
     min-width: 0;
     margin-top: 8px;
     box-shadow: none;
+  }
+
+  .date-range-fields {
+    grid-template-columns: 1fr;
   }
 
   .schedule-summary {
