@@ -184,7 +184,7 @@ const recommendedIdeas = {
 
 const ideaVisuals = {
   "irl-family-week": {
-    image: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Slieve_League-cliffs.jpg",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Church_of_Ireland%2C_Donegal_Town_-_geograph.org.uk_-_2525437.jpg/960px-Church_of_Ireland%2C_Donegal_Town_-_geograph.org.uk_-_2525437.jpg",
     caption: "The Donegal base is the anchor: family time, coast, and slower days."
   },
   "irl-slieve": {
@@ -195,9 +195,25 @@ const ideaVisuals = {
     image: "https://commons.wikimedia.org/wiki/Special:FilePath/Glenveagh_Castle_-_Lough_Veagh.JPG",
     caption: "Castle, gardens, lake, and national-park scenery for a Donegal day."
   },
+  "irl-pub": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/7/70/Ardara_-_Interior_of_Nancy%27s_Pub_-_geograph.org.uk_-_1351963.jpg",
+    caption: "A proper Donegal pub night: warm room, music energy, and an easy local evening."
+  },
+  "irl-dublin": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/2008-05-23_The_Temple_Bar%2C_Dublin%2C_Ireland.jpg/960px-2008-05-23_The_Temple_Bar%2C_Dublin%2C_Ireland.jpg",
+    caption: "A compact Dublin city night before or after the Donegal leg."
+  },
+  "irl-car": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Wild_Atlantic_Way_Sky_Road_sign.jpg/960px-Wild_Atlantic_Way_Sky_Road_sign.jpg",
+    caption: "Car freedom for Wild Atlantic Way days, Donegal coast roads, and flexible family time."
+  },
   "irl-giants": {
     image: "https://commons.wikimedia.org/wiki/Special:FilePath/Giant%27s_Causeway_(14).JPG",
     caption: "A bigger northern-coast add-on if the Ireland routing makes sense."
+  },
+  "lon-west-end": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Vaudeville_Theatre_London.jpg/960px-Vaudeville_Theatre_London.jpg",
+    caption: "West End theatre energy for one proper London show night."
   },
   "lon-hp-studio": {
     image: "https://images.unsplash.com/photo-1598153346810-860daa814c4b?auto=format&fit=crop&w=1000&q=78",
@@ -211,13 +227,217 @@ const ideaVisuals = {
     image: "https://commons.wikimedia.org/wiki/Special:FilePath/Leadenhall_Market,_London.jpg",
     caption: "Covered Victorian market streets with a Diagon Alley kind of feel."
   },
+  "lon-minalima": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/House_of_MinaLima_2017-05-07.jpg/960px-House_of_MinaLima_2017-05-07.jpg",
+    caption: "A small design-shop stop for the Harry Potter visual world."
+  },
+  "lon-british": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/British_Museum_Great_Court%2C_London%2C_UK_-_Diliff.jpg/960px-British_Museum_Great_Court%2C_London%2C_UK_-_Diliff.jpg",
+    caption: "A classic museum slot if London needs a culture-heavy half day."
+  },
+  "lon-oxford": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Radcliffe_Camera%2C_Oxford_-_Oct_2006.jpg/960px-Radcliffe_Camera%2C_Oxford_-_Oct_2006.jpg",
+    caption: "Oxford gives a storybook day-trip feel without adding a new overnight stop."
+  },
+  "par-eurostar": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/London_St_Pancras_Eurostar_trains.jpg/960px-London_St_Pancras_Eurostar_trains.jpg",
+    caption: "The clean London-to-Paris move: city-centre train instead of airport faff."
+  },
+  "par-restaurant": {
+    image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1000&q=78",
+    caption: "A slower restaurant night so Paris feels like Paris, not just sightseeing."
+  },
+  "par-orsay": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/3/36/Musee_d%27orsay_clock_in_the_morning.jpg",
+    caption: "Musee d'Orsay brings the big Paris gallery moment in a beautiful old station."
+  },
   "par-montmartre": {
     image: "https://commons.wikimedia.org/wiki/Special:FilePath/Montmartre_Paris.jpg",
     caption: "Hilly village-feel Paris: Sacre-Coeur, cafes, and wandering streets."
   },
+  "par-seine": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Seine_Pont_Royal_Louvre_Paris.jpg/960px-Seine_Pont_Royal_Louvre_Paris.jpg",
+    caption: "A lighter Paris slot: river edge, picnic supplies, or a gentle Seine cruise."
+  },
+  "par-versailles": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Chateau_Versailles_Galerie_des_Glaces.jpg/960px-Chateau_Versailles_Galerie_des_Glaces.jpg",
+    caption: "A bigger day trip if you want the palace-and-gardens version of Paris."
+  },
+  "par-pastry": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Patisserie_Stohrer_%28Paris%29.jpg/960px-Patisserie_Stohrer_%28Paris%29.jpg",
+    caption: "Coffee, pastries, and wandering: the low-pressure Paris morning option."
+  },
+  "ita-rome-florence": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/CampanileGiotto-01.jpg/960px-CampanileGiotto-01.jpg",
+    caption: "Florence by train adds Renaissance Italy to the Rome base."
+  },
+  "ita-cooking": {
+    image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=1000&q=78",
+    caption: "A hands-on food experience: pasta, market ingredients, or a guided food tour."
+  },
   "ita-colosseum": {
     image: "https://commons.wikimedia.org/wiki/Special:FilePath/Colosseum_in_Rome,_Italy_-_April_2007.jpg",
     caption: "Classic ancient Rome: big, busy, and very worth booking ahead."
+  },
+  "ita-vatican": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Basilica_di_San_Pietro_in_Vaticano_September_2015-1a.jpg/960px-Basilica_di_San_Pietro_in_Vaticano_September_2015-1a.jpg",
+    caption: "The Vatican option: major art, architecture, and a booking-ahead kind of day."
+  },
+  "ita-trastevere": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Roma_Trastevere_%2852345941595%29.jpg/960px-Roma_Trastevere_%2852345941595%29.jpg",
+    caption: "A Roman dinner-night neighbourhood with evening streets and easy atmosphere."
+  },
+  "ita-uffizi": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Uffizi_Gallery_-_Daughter_of_Niobe_bent_by_terror.jpg/960px-Uffizi_Gallery_-_Daughter_of_Niobe_bent_by_terror.jpg",
+    caption: "A Florence art slot if the Italy leg leans Renaissance."
+  },
+  "ita-venice": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Venice_awakes_%2820618763815%29.jpg/960px-Venice_awakes_%2820618763815%29.jpg",
+    caption: "Venice is the stretch option: beautiful, slower, and worth enough time to breathe."
+  },
+  "gr-athens": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Attica_06-13_Athens_50_View_from_Philopappos_-_Acropolis_Hill.jpg/960px-Attica_06-13_Athens_50_View_from_Philopappos_-_Acropolis_Hill.jpg",
+    caption: "Athens brings the ancient-sites-and-rooftop-dinner version of Greece."
+  },
+  "gr-island": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Cyclades_Mill.jpg/960px-Cyclades_Mill.jpg",
+    caption: "A Cyclades-style island hop if Greece turns into a sun-and-sea stop."
+  },
+  "gr-food": {
+    image: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=1000&q=78",
+    caption: "Greek food is a strong argument for adding the stop: grilled, fresh, and shareable."
+  },
+  "gr-beach": {
+    image: "https://images.unsplash.com/photo-1504512485720-7d83a16ee930?auto=format&fit=crop&w=1000&q=78",
+    caption: "A proper slow beach day if the trip needs more sun and less city."
+  },
+  "ice-lagoon": {
+    image: "https://images.unsplash.com/photo-1504829857797-ddff29c27927?auto=format&fit=crop&w=1000&q=78",
+    caption: "Geothermal water and big-sky Iceland recovery time."
+  },
+  "ice-golden": {
+    image: "https://images.unsplash.com/photo-1529963183134-61a90db47eaf?auto=format&fit=crop&w=1000&q=78",
+    caption: "A Golden Circle-style day: waterfalls, geysers, and Iceland scenery without overcomplicating it."
+  },
+  "aut-vienna": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Innsbruck_Goldenes_Dachl_1.jpg/1280px-Innsbruck_Goldenes_Dachl_1.jpg",
+    caption: "Cafe-and-palace Austria: elegant city time with easy train logistics."
+  },
+  "aut-alps": {
+    image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1000&q=78",
+    caption: "The Alps option if Austria becomes more scenery than city."
+  },
+  "aut-salzburg": {
+    image: "https://images.unsplash.com/photo-1516550893885-985c71bca01b?auto=format&fit=crop&w=1000&q=78",
+    caption: "Salzburg adds old-town charm and mountain-edge scenery."
+  },
+  "aut-food": {
+    image: "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1000&q=78",
+    caption: "A comfort-food night: schnitzel, cake, wine tavern, or a long cafe stop."
+  },
+  "cro-dubrovnik": {
+    image: "https://images.unsplash.com/photo-1555990538-c48dbe0d1d95?auto=format&fit=crop&w=1000&q=78",
+    caption: "Dubrovnik is the dramatic old-town-and-walls Croatia option."
+  },
+  "cro-split": {
+    image: "https://images.unsplash.com/photo-1555990538-c48dbe0d1d95?auto=format&fit=crop&w=1000&q=78",
+    caption: "Split keeps Croatia practical with old-town texture and ferry access."
+  },
+  "cro-island": {
+    image: "https://images.unsplash.com/photo-1549877452-9c387954fbc2?auto=format&fit=crop&w=1000&q=78",
+    caption: "Island hopping turns Croatia into the sunny coast version of the trip."
+  },
+  "nor-fjord": {
+    image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1000&q=78",
+    caption: "Fjord scenery is the reason Norway earns wildcard consideration."
+  },
+  "nor-bergen": {
+    image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1000&q=78",
+    caption: "Bergen gives Norway a harbour, viewpoint, and city-base version."
+  },
+  "nor-train": {
+    image: "https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=1000&q=78",
+    caption: "The scenic-rail research option before Norway gets expensive."
+  },
+  "ger-berlin": {
+    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1000&q=78",
+    caption: "Berlin is the history, neighbourhoods, and late-city-energy option."
+  },
+  "ger-beer": {
+    image: "https://images.unsplash.com/photo-1504502350688-00f5d59bbdeb?auto=format&fit=crop&w=1000&q=78",
+    caption: "A beer hall or market night if Germany becomes more than route glue."
+  },
+  "ger-train": {
+    image: "https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=1000&q=78",
+    caption: "Germany can work as the rail-hub piece of a wider Europe loop."
+  },
+  "cze-prague": {
+    image: "https://images.unsplash.com/photo-1541849546-216549ae216d?auto=format&fit=crop&w=1000&q=78",
+    caption: "Prague is the castle, old town, and value-city option."
+  },
+  "cze-beer": {
+    image: "https://images.unsplash.com/photo-1504502350688-00f5d59bbdeb?auto=format&fit=crop&w=1000&q=78",
+    caption: "A beer-hall dinner gives Czechia an easy evening reason to exist."
+  },
+  "cze-daytrip": {
+    image: "https://images.unsplash.com/photo-1541849546-216549ae216d?auto=format&fit=crop&w=1000&q=78",
+    caption: "A storybook day trip if Prague becomes a longer stop."
+  },
+  "hun-baths": {
+    image: "https://images.unsplash.com/photo-1549877452-9c387954fbc2?auto=format&fit=crop&w=1000&q=78",
+    caption: "Thermal baths are the big Budapest wildcard draw."
+  },
+  "hun-ruinbar": {
+    image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=1000&q=78",
+    caption: "Ruin bars and food give Budapest a different night-out flavour."
+  },
+  "hun-danube": {
+    image: "https://images.unsplash.com/photo-1549877452-9c387954fbc2?auto=format&fit=crop&w=1000&q=78",
+    caption: "The Danube evening version of Budapest: scenic, easy, and low-planning."
+  },
+  "i1": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Church_of_Ireland%2C_Donegal_Town_-_geograph.org.uk_-_2525437.jpg/960px-Church_of_Ireland%2C_Donegal_Town_-_geograph.org.uk_-_2525437.jpg",
+    caption: "The Donegal base is the anchor: family time, coast, and slower days."
+  },
+  "i2": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Wild_Atlantic_Way_Sky_Road_sign.jpg/960px-Wild_Atlantic_Way_Sky_Road_sign.jpg",
+    caption: "Car freedom for Wild Atlantic Way days, Donegal coast roads, and flexible family time."
+  },
+  "i3": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/2008-05-23_The_Temple_Bar%2C_Dublin%2C_Ireland.jpg/960px-2008-05-23_The_Temple_Bar%2C_Dublin%2C_Ireland.jpg",
+    caption: "A compact Dublin city night before or after the Donegal leg."
+  },
+  "l1": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Vaudeville_Theatre_London.jpg/960px-Vaudeville_Theatre_London.jpg",
+    caption: "West End theatre energy for one proper London show night."
+  },
+  "l3": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Radcliffe_Camera%2C_Oxford_-_Oct_2006.jpg/960px-Radcliffe_Camera%2C_Oxford_-_Oct_2006.jpg",
+    caption: "Oxford gives a storybook day-trip feel without adding a new overnight stop."
+  },
+  "p1": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/London_St_Pancras_Eurostar_trains.jpg/960px-London_St_Pancras_Eurostar_trains.jpg",
+    caption: "The clean London-to-Paris move: city-centre train instead of airport faff."
+  },
+  "p2": {
+    image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1000&q=78",
+    caption: "A slower restaurant night so Paris feels like Paris, not just sightseeing."
+  },
+  "p3": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/3/36/Musee_d%27orsay_clock_in_the_morning.jpg",
+    caption: "Musee d'Orsay brings the big Paris gallery moment in a beautiful old station."
+  },
+  "t1": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/CampanileGiotto-01.jpg/960px-CampanileGiotto-01.jpg",
+    caption: "Florence by train adds Renaissance Italy to the Rome base."
+  },
+  "t2": {
+    image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=1000&q=78",
+    caption: "A hands-on food experience: pasta, market ingredients, or a guided food tour."
+  },
+  "t3": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Venice_awakes_%2820618763815%29.jpg/960px-Venice_awakes_%2820618763815%29.jpg",
+    caption: "Venice is the stretch option: beautiful, slower, and worth enough time to breathe."
   },
   "ice-road": {
     image: "https://images.unsplash.com/photo-1504829857797-ddff29c27927?auto=format&fit=crop&w=1000&q=78",
