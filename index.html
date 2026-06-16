@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Europe 2027 Trip Planner</title>
     <link rel="icon" href="assets/euro-avocado.png" />
-    <link rel="stylesheet" href="styles.css?v=27" />
+    <link rel="stylesheet" href="styles.css?v=28" />
   </head>
   <body>
     <div class="app-shell" data-theme="coast">
@@ -254,7 +254,7 @@
             <div>
               <p class="eyebrow">Loose thoughts</p>
               <h2>Whiteboard</h2>
-              <p class="section-note">A shared pinboard for half-formed ideas, links, reminders, and things to discuss later.</p>
+              <p class="section-note">A shared canvas for half-formed ideas, links, reminders, and things to discuss later.</p>
             </div>
           </div>
           <div class="whiteboard-layout">
@@ -263,6 +263,33 @@
                 New note
                 <textarea name="note" rows="4" placeholder="e.g. What if we added Greece after Italy?"></textarea>
               </label>
+              <div class="composer-row">
+                <label>
+                  Font
+                  <select name="fontFamily">
+                    <option value="casual">Casual</option>
+                    <option value="clean">Clean</option>
+                    <option value="serif">Serif</option>
+                    <option value="mono">Mono</option>
+                  </select>
+                </label>
+                <label>
+                  Size
+                  <select name="fontSize">
+                    <option value="18">Small</option>
+                    <option value="22" selected>Medium</option>
+                    <option value="28">Large</option>
+                  </select>
+                </label>
+              </div>
+              <input name="color" type="hidden" value="#fff4b8" />
+              <div class="swatch-row" aria-label="Note colour">
+                <button type="button" class="swatch is-selected" data-new-note-color="#fff4b8" style="--swatch: #fff4b8" title="Yellow"></button>
+                <button type="button" class="swatch" data-new-note-color="#ffd6d6" style="--swatch: #ffd6d6" title="Pink"></button>
+                <button type="button" class="swatch" data-new-note-color="#d8f7d0" style="--swatch: #d8f7d0" title="Green"></button>
+                <button type="button" class="swatch" data-new-note-color="#cfe9ff" style="--swatch: #cfe9ff" title="Blue"></button>
+                <button type="button" class="swatch" data-new-note-color="#eadcff" style="--swatch: #eadcff" title="Lilac"></button>
+              </div>
               <button type="submit" class="primary-button">Pin note</button>
             </form>
             <div class="whiteboard-board" id="whiteboardBoard"></div>
@@ -388,6 +415,6 @@
         </article>
       </template>
     </div>
-    <script src="script.js?v=27"></script>
+    <script src="script.js?v=28"></script>
   </body>
 </html>

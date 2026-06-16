@@ -602,6 +602,15 @@ let remoteReady = false;
 let applyingRemoteTrip = false;
 let remoteSaveTimer;
 let lastRemotePayload = "";
+let activeWhiteboardNoteId = "";
+
+const whiteboardPalette = ["#fff4b8", "#ffd6d6", "#d8f7d0", "#cfe9ff", "#eadcff", "#ffe1b8", "#d7f4ea"];
+const whiteboardFonts = {
+  casual: "'Trebuchet MS', 'Segoe UI', sans-serif",
+  clean: "'Inter', 'Segoe UI', Arial, sans-serif",
+  serif: "Georgia, 'Times New Roman', serif",
+  mono: "'Courier New', Consolas, monospace"
+};
 
 function loadTrip() {
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -1015,23 +1024,195 @@ function renderWhiteboard() {
     whiteboardBoard.innerHTML = `<div class="empty-board">No pins yet. Add the messy stuff here before it becomes a real destination or idea.</div>`;
     return;
   }
-  trip.whiteboardNotes.forEach((note) => {
-    const card = document.createElement("article");
-    card.className = "whiteboard-note";
-    card.innerHTML = `
-      <p>${escapeHtml(note.text)}</p>
-      <div class="whiteboard-note-footer">
-        <span>${escapeHtml(note.author || "?")}</span>
-        <time>${formatShortDate(note.createdAt?.slice(0, 10)) || ""}</time>
-        <button class="delete-button" title="Delete note">&times;</button>
+  trip.whiteboardNotes.forEach((note) => whiteboardBoard.append(createWhiteboardNoteCard(note)));
+}
+
+function createWhiteboardNoteCard(note) {
+  const card = document.createElement("article");
+  card.className = "whiteboard-note";
+  card.dataset.id = note.id;
+  if (activeWhiteboardNoteId === note.id) card.classList.add("is-active");
+  card.innerHTML = `
+    <div class="whiteboard-note-grip" title="Drag note">
+      <span>${escapeHtml(note.author || "?")}</span>
+      <time>${formatShortDate(note.createdAt?.slice(0, 10)) || ""}</time>
+      <button class="delete-button" title="Delete note">&times;</button>
+    </div>
+    <div class="note-editor" contenteditable="true" role="textbox" aria-label="Note text" spellcheck="true"></div>
+    <div class="whiteboard-note-tools" aria-label="Note tools">
+      <div class="note-swatch-row">
+        ${whiteboardPalette.map((color) => `<button type="button" class="note-swatch ${note.color === color ? "is-selected" : ""}" data-note-color="${escapeAttribute(color)}" style="--swatch: ${escapeAttribute(color)}" title="Colour"></button>`).join("")}
       </div>
-    `;
-    card.querySelector("button").addEventListener("click", () => {
-      trip.whiteboardNotes = trip.whiteboardNotes.filter((entry) => entry.id !== note.id);
-      render();
-    });
-    whiteboardBoard.append(card);
+      <select data-note-font aria-label="Note font">
+        ${Object.keys(whiteboardFonts).map((font) => `<option value="${font}" ${note.fontFamily === font ? "selected" : ""}>${fontLabel(font)}</option>`).join("")}
+      </select>
+      <select data-note-size aria-label="Note size">
+        ${[16, 18, 22, 28, 34].map((size) => `<option value="${size}" ${Number(note.fontSize) === size ? "selected" : ""}>${size}</option>`).join("")}
+      </select>
+      <button type="button" class="format-button ${note.bold ? "is-active" : ""}" data-note-toggle="bold" title="Bold">B</button>
+      <button type="button" class="format-button ${note.italic ? "is-active" : ""}" data-note-toggle="italic" title="Italic">I</button>
+      <button type="button" class="format-button" data-note-align title="Align">${alignLabel(note.align)}</button>
+    </div>
+    <button type="button" class="note-resize-handle" title="Resize note" aria-label="Resize note"></button>
+  `;
+  const editor = card.querySelector(".note-editor");
+  editor.textContent = note.text;
+  applyWhiteboardNoteStyle(card, note);
+
+  card.addEventListener("pointerdown", () => {
+    activeWhiteboardNoteId = note.id;
+    bringWhiteboardNoteToFront(note, card);
   });
+  card.querySelector(".whiteboard-note-grip").addEventListener("pointerdown", (event) => startWhiteboardPointer(event, note, card, "move"));
+  card.querySelector(".note-resize-handle").addEventListener("pointerdown", (event) => startWhiteboardPointer(event, note, card, "resize"));
+  editor.addEventListener("input", () => {
+    note.text = editor.innerText.trimEnd();
+    saveTrip();
+  });
+  const deleteButton = card.querySelector(".delete-button");
+  deleteButton.addEventListener("pointerdown", (event) => event.stopPropagation());
+  deleteButton.addEventListener("click", () => {
+    trip.whiteboardNotes = trip.whiteboardNotes.filter((entry) => entry.id !== note.id);
+    render();
+  });
+  card.querySelectorAll("[data-note-color]").forEach((button) => {
+    button.addEventListener("click", () => {
+      note.color = button.dataset.noteColor;
+      card.querySelectorAll("[data-note-color]").forEach((entry) => entry.classList.toggle("is-selected", entry === button));
+      applyWhiteboardNoteStyle(card, note);
+      saveTrip();
+    });
+  });
+  card.querySelector("[data-note-font]").addEventListener("change", (event) => {
+    note.fontFamily = event.target.value;
+    applyWhiteboardNoteStyle(card, note);
+    saveTrip();
+  });
+  card.querySelector("[data-note-size]").addEventListener("change", (event) => {
+    note.fontSize = Number(event.target.value);
+    applyWhiteboardNoteStyle(card, note);
+    saveTrip();
+  });
+  card.querySelectorAll("[data-note-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.noteToggle;
+      note[key] = !note[key];
+      button.classList.toggle("is-active", Boolean(note[key]));
+      applyWhiteboardNoteStyle(card, note);
+      saveTrip();
+    });
+  });
+  card.querySelector("[data-note-align]").addEventListener("click", (event) => {
+    note.align = nextAlign(note.align);
+    event.currentTarget.textContent = alignLabel(note.align);
+    applyWhiteboardNoteStyle(card, note);
+    saveTrip();
+  });
+  return card;
+}
+
+function applyWhiteboardNoteStyle(card, note) {
+  card.style.left = `${note.x}px`;
+  card.style.top = `${note.y}px`;
+  card.style.width = `${note.width}px`;
+  card.style.height = `${note.height}px`;
+  card.style.zIndex = note.z;
+  card.style.transform = `rotate(${note.rotation}deg)`;
+  card.style.setProperty("--note-color", note.color);
+  const editor = card.querySelector(".note-editor");
+  if (!editor) return;
+  editor.style.fontFamily = whiteboardFonts[note.fontFamily] || whiteboardFonts.casual;
+  editor.style.fontSize = `${note.fontSize}px`;
+  editor.style.fontWeight = note.bold ? "950" : "750";
+  editor.style.fontStyle = note.italic ? "italic" : "normal";
+  editor.style.textAlign = note.align || "left";
+}
+
+function startWhiteboardPointer(event, note, card, mode) {
+  if (event.button !== 0) return;
+  event.preventDefault();
+  activeWhiteboardNoteId = note.id;
+  bringWhiteboardNoteToFront(note, card);
+  card.classList.add("is-moving");
+  const boardRect = whiteboardBoard.getBoundingClientRect();
+  const start = {
+    x: event.clientX,
+    y: event.clientY,
+    noteX: Number(note.x || 0),
+    noteY: Number(note.y || 0),
+    width: Number(note.width || 240),
+    height: Number(note.height || 180)
+  };
+  const onMove = (moveEvent) => {
+    if (mode === "move") {
+      note.x = clamp(start.noteX + moveEvent.clientX - start.x, 8, Math.max(8, boardRect.width - note.width - 8));
+      note.y = clamp(start.noteY + moveEvent.clientY - start.y, 8, Math.max(8, boardRect.height - note.height - 8));
+    } else {
+      note.width = clamp(start.width + moveEvent.clientX - start.x, 190, Math.max(190, boardRect.width - note.x - 8));
+      note.height = clamp(start.height + moveEvent.clientY - start.y, 150, Math.max(150, boardRect.height - note.y - 8));
+    }
+    applyWhiteboardNoteStyle(card, note);
+  };
+  const onUp = () => {
+    card.classList.remove("is-moving");
+    saveTrip();
+    window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("pointerup", onUp);
+  };
+  window.addEventListener("pointermove", onMove);
+  window.addEventListener("pointerup", onUp);
+}
+
+function bringWhiteboardNoteToFront(note, card) {
+  const maxZ = Math.max(0, ...trip.whiteboardNotes.map((entry) => Number(entry.z || 0)));
+  note.z = maxZ + 1;
+  card.style.zIndex = note.z;
+  whiteboardBoard.querySelectorAll(".whiteboard-note").forEach((entry) => entry.classList.toggle("is-active", entry === card));
+}
+
+function normalizeWhiteboardNote(note, index) {
+  const col = index % 3;
+  const row = Math.floor(index / 3);
+  return {
+    id: note.id || newId(),
+    text: String(note.text || ""),
+    author: note.author || initials(viewerName()),
+    createdAt: note.createdAt || new Date().toISOString(),
+    x: clampNumber(note.x, 28 + col * 270, 0, 900),
+    y: clampNumber(note.y, 28 + row * 220, 0, 620),
+    width: clampNumber(note.width, 240, 190, 420),
+    height: clampNumber(note.height, 180, 150, 360),
+    color: whiteboardPalette.includes(note.color) ? note.color : whiteboardPalette[index % whiteboardPalette.length],
+    fontFamily: whiteboardFonts[note.fontFamily] ? note.fontFamily : "casual",
+    fontSize: clampNumber(note.fontSize, 22, 16, 34),
+    bold: Boolean(note.bold),
+    italic: Boolean(note.italic),
+    align: ["left", "center", "right"].includes(note.align) ? note.align : "left",
+    rotation: clampNumber(note.rotation, [-1.5, 1.2, -0.8, 1.6][index % 4], -3, 3),
+    z: clampNumber(note.z, index + 1, 1, 9999)
+  };
+}
+
+function fontLabel(font) {
+  return { casual: "Casual", clean: "Clean", serif: "Serif", mono: "Mono" }[font] || "Casual";
+}
+
+function alignLabel(align) {
+  return { left: "L", center: "C", right: "R" }[align] || "L";
+}
+
+function nextAlign(align) {
+  return { left: "center", center: "right", right: "left" }[align] || "center";
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function clampNumber(value, fallback, min, max) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return fallback;
+  return clamp(number, min, max);
 }
 
 function updateDaily(destination, key, value) {
@@ -1710,12 +1891,9 @@ function normalizeTrip() {
   trip.stopoverId = stopoverOptions.some((option) => option.id === trip.stopoverId) ? trip.stopoverId : "";
   trip.returnStopoverId = stopoverOptions.some((option) => option.id === trip.returnStopoverId) ? trip.returnStopoverId : "";
   trip.flightQuotes = trip.flightQuotes || [];
-  trip.whiteboardNotes = (trip.whiteboardNotes || []).map((note) => ({
-    id: note.id || newId(),
-    text: note.text || "",
-    author: note.author || initials(viewerName()),
-    createdAt: note.createdAt || new Date().toISOString()
-  })).filter((note) => note.text.trim());
+  trip.whiteboardNotes = (trip.whiteboardNotes || [])
+    .map(normalizeWhiteboardNote)
+    .filter((note) => note.text.trim());
   syncStopoverDestinations();
   trip.itinerary = (trip.itinerary || [])
     .filter((stop) => trip.destinations.some((destination) => destination.id === stop.destinationId))
@@ -1770,6 +1948,7 @@ tabs.forEach((tab) => {
   tab.addEventListener("click", () => {
     tabs.forEach((entry) => entry.classList.toggle("is-active", entry === tab));
     panels.forEach((panel) => panel.classList.toggle("is-active", panel.id === tab.dataset.tab));
+    if (tab.dataset.tab === "whiteboard") renderWhiteboard();
   });
 });
 
@@ -1932,14 +2111,31 @@ whiteboardForm?.addEventListener("submit", (event) => {
   const textarea = field(whiteboardForm, "note");
   const text = String(textarea.value || "").trim();
   if (!text) return;
+  const count = trip.whiteboardNotes.length;
   trip.whiteboardNotes.unshift({
     id: newId(),
     text,
     author: initials(viewerName()),
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    x: 34 + (count % 4) * 42,
+    y: 34 + (count % 5) * 36,
+    width: 250,
+    height: 190,
+    color: field(whiteboardForm, "color").value || whiteboardPalette[0],
+    fontFamily: field(whiteboardForm, "fontFamily").value || "casual",
+    fontSize: Number(field(whiteboardForm, "fontSize").value || 22),
+    rotation: [-1.5, 1, -0.5, 1.4][count % 4],
+    z: Math.max(0, ...trip.whiteboardNotes.map((note) => Number(note.z || 0))) + 1
   });
   textarea.value = "";
   render();
+});
+
+whiteboardForm?.querySelectorAll("[data-new-note-color]").forEach((button) => {
+  button.addEventListener("click", () => {
+    field(whiteboardForm, "color").value = button.dataset.newNoteColor;
+    whiteboardForm.querySelectorAll("[data-new-note-color]").forEach((entry) => entry.classList.toggle("is-selected", entry === button));
+  });
 });
 
 document.querySelector("#addStopBtn").addEventListener("click", () => {
