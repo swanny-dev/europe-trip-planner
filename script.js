@@ -12,7 +12,7 @@ const sampleTrip = {
   destinations: [
     {
       id: "ireland",
-      name: "Donegal + Ireland",
+      name: "Ireland",
       region: "Family, coast, road trip",
       country: "Ireland",
       nights: 8,
@@ -102,7 +102,7 @@ const europeMapImage = "assets/europe-route-map.png";
 const genericEuropeImage = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Europe_satellite_orthographic.jpg/1280px-Europe_satellite_orthographic.jpg";
 
 const recommendedIdeas = {
-  "Donegal + Ireland": [
+  "Ireland": [
     ["irl-family-week", "One full week based near family in Donegal", "Family", 150, [true, true]],
     ["irl-slieve", "Slieve League cliffs day", "Adventure", 80, [false, true]],
     ["irl-glenveagh", "Glenveagh National Park and castle", "Culture", 90, [false, false]],
@@ -556,7 +556,7 @@ function renderMap() {
     <figure class="map-canvas">
       <img src="${europeMapImage}" alt="Illustrated map focused on Ireland, London, Paris, and Italy" />
       <div class="map-labels" aria-hidden="true">
-        <span class="map-label map-label-ireland">Donegal + Ireland</span>
+        <span class="map-label map-label-ireland">Ireland</span>
         <span class="map-label map-label-london">London</span>
         <span class="map-label map-label-paris">Paris</span>
         <span class="map-label map-label-italy">Italy</span>
@@ -1453,7 +1453,7 @@ function normalizeTrip() {
   const removedIdeaTitles = new Set(["Borough Market and Southbank wander", "Camden or Shoreditch food crawl", "Sky Garden or river view drinks"]);
   trip.destinations = (trip.destinations || []).map((destination) => ({
     id: destination.id || newId(),
-    name: destination.name || "New destination",
+    name: destination.name === "Donegal + Ireland" ? "Ireland" : destination.name || "New destination",
     region: destination.region || "Worth exploring",
     country: destination.country || destination.name || "Europe",
     nights: Number(destination.nights || 1),
