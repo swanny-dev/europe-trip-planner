@@ -185,6 +185,27 @@ const recommendedIdeas = {
   ]
 };
 
+const ideaVisuals = {
+  "irl-slieve": {
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Slieve_League-cliffs.jpg",
+    caption: "Clifftop Donegal scenery for a Wild Atlantic Way day."
+  },
+  "lon-leadenhall": {
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Leadenhall_Market,_London.jpg",
+    caption: "Covered Victorian market streets with a Diagon Alley kind of feel."
+  },
+  "lon-skygarden": {
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Sky_Garden_London.jpg",
+    caption: "A city-view option for a lighter London evening."
+  },
+  "ita-colosseum": {
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Colosseum_in_Rome,_Italy_-_April_2007.jpg",
+    caption: "Classic ancient Rome: big, busy, and very worth booking ahead."
+  }
+};
+
+const generatedIdeaIds = new Set(Object.values(recommendedIdeas).flatMap((ideas) => ideas.map(([id]) => id)));
+
 const countryPresets = [
   ["Albania", "Riviera, mountains, value", "Wildcard", 5, 150, 85, 55, 75],
   ["Andorra", "Pyrenees, spa, mountain roads", "Mountain add-on", 2, 210, 115, 55, 80],
@@ -538,36 +559,40 @@ function renderDestinations() {
     });
     const ideaList = node.querySelector(".idea-list");
     ideaList.before(progress);
-    destination.ideas.forEach((idea) => ideaList.append(createIdeaItem(destination.id, idea)));
+    destination.ideas.forEach((idea) => ideaList.append(createIdeaItem(destination, idea)));
     destinationGrid.append(node);
   });
 }
 
-function createIdeaItem(destinationId, idea) {
+function createIdeaItem(destination, idea) {
   const role = viewerRole();
   const item = document.createElement("div");
   item.className = "idea-item";
   const startDate = idea.startDate || idea.date || "";
   const endDate = idea.endDate || "";
+  const visual = ideaVisualFor(idea, destination);
   item.innerHTML = `
-    <div>
+    <div class="idea-copy">
       <strong>${idea.title}</strong>
       <p class="idea-meta">${idea.theme} - ${money(idea.cost)}</p>
     </div>
-    ${scheduleDetails(`${idea.title} date range`, startDate, endDate, "Set dates", "idea-schedule")}
-    <div class="vote-buttons">
-      <button class="vote-button ${idea.votes[0] ? "is-active" : ""}" data-voter="0" title="${trip.travelerA} vote" ${role !== "ruairi" ? "disabled" : ""}>${initials(trip.travelerA)}</button>
-      <button class="vote-button ${idea.votes[1] ? "is-active" : ""}" data-voter="1" title="${trip.travelerB} vote" ${role !== "maggie" ? "disabled" : ""}>${initials(trip.travelerB)}</button>
-      <button class="delete-button" title="Delete idea">&times;</button>
+    <div class="idea-row-controls">
+      ${scheduleDetails(`${idea.title} date range`, startDate, endDate, "Set dates", "idea-schedule")}
+      <div class="vote-buttons">
+        <button class="vote-button ${idea.votes[0] ? "is-active" : ""}" data-voter="0" title="${trip.travelerA} vote" ${role !== "ruairi" ? "disabled" : ""}>${initials(trip.travelerA)}</button>
+        <button class="vote-button ${idea.votes[1] ? "is-active" : ""}" data-voter="1" title="${trip.travelerB} vote" ${role !== "maggie" ? "disabled" : ""}>${initials(trip.travelerB)}</button>
+        <button class="delete-button" title="Delete idea">&times;</button>
+      </div>
     </div>
+    ${visual ? ideaVisualDetails(visual) : ""}
   `;
   attachScheduleControl(item.querySelector(".schedule-details"), ({ startDate: nextStartDate, endDate: nextEndDate }) => {
     idea.startDate = nextStartDate;
     idea.date = nextStartDate;
     idea.endDate = nextEndDate;
-      saveTrip();
-      renderTimingMatrix();
-      renderFlights();
+    saveTrip();
+    renderTimingMatrix();
+    renderFlights();
   });
   item.querySelectorAll(".vote-button").forEach((button) => {
     button.addEventListener("click", () => {
@@ -576,11 +601,35 @@ function createIdeaItem(destinationId, idea) {
     });
   });
   item.querySelector(".delete-button").addEventListener("click", () => {
-    const destination = trip.destinations.find((entry) => entry.id === destinationId);
     destination.ideas = destination.ideas.filter((entry) => entry.id !== idea.id);
     render();
   });
   return item;
+}
+
+function ideaVisualFor(idea, destination) {
+  const visual = idea.visual || ideaVisuals[idea.id];
+  if (visual?.image) return visual;
+  const isGenerated = generatedIdeaIds.has(idea.id) || /-(signature|food|wander)$/.test(idea.id);
+  if (!isGenerated) return null;
+  const image = destination.image || imageForCountry(destination.country || destination.name);
+  if (!image) return null;
+  return {
+    image,
+    caption: `A quick visual cue for ${destination.name}.`
+  };
+}
+
+function ideaVisualDetails(visual) {
+  return `
+    <details class="idea-visual">
+      <summary>Preview</summary>
+      <div class="idea-visual-panel">
+        <img src="${escapeAttribute(visual.image)}" alt="" loading="lazy" />
+        <p>${escapeHtml(visual.caption || "A quick visual cue for this idea.")}</p>
+      </div>
+    </details>
+  `;
 }
 
 function initials(name) {
@@ -1328,6 +1377,7 @@ function normalizeTrip() {
       date: idea.date || idea.startDate || "",
       startDate: idea.startDate || idea.date || "",
       endDate: idea.endDate || "",
+      visual: idea.visual || null,
       votes: Array.isArray(idea.votes) ? [Boolean(idea.votes[0]), Boolean(idea.votes[1])] : [false, false]
     }))
   }));
@@ -1378,6 +1428,10 @@ function mergeGenericIdeas() {
 
 function escapeAttribute(value) {
   return String(value).replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
+}
+
+function escapeHtml(value) {
+  return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 
 tabs.forEach((tab) => {

@@ -895,13 +895,97 @@ select {
 
 .idea-item {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(135px, 160px) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
   padding: 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(246, 248, 246, 0.7);
+}
+
+.idea-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.idea-row-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.idea-row-controls .schedule-details {
+  width: 160px;
+}
+
+.idea-visual {
+  grid-column: 1 / -1;
+  border-top: 1px solid rgba(27, 36, 34, 0.08);
+  padding-top: 8px;
+}
+
+.idea-visual summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 10px;
+  color: var(--accent);
+  background: #fff;
+  font-size: 0.74rem;
+  font-weight: 900;
+  cursor: pointer;
+  list-style: none;
+}
+
+.idea-visual summary::-webkit-details-marker {
+  display: none;
+}
+
+.idea-visual summary::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+}
+
+.idea-visual[open] summary::before {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.idea-visual-panel {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.9fr) 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.idea-visual-panel img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 6px;
+  background: var(--soft);
+}
+
+.idea-visual-panel p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.45;
 }
 
 .schedule-details {
@@ -1380,6 +1464,19 @@ dialog::backdrop {
   .idea-item,
   .timing-fit-row,
   .scheduled-idea-row {
+    grid-template-columns: 1fr;
+  }
+
+  .idea-row-controls {
+    justify-content: stretch;
+    flex-wrap: wrap;
+  }
+
+  .idea-row-controls .schedule-details {
+    width: 100%;
+  }
+
+  .idea-visual-panel {
     grid-template-columns: 1fr;
   }
 
