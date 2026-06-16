@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Europe 2027 Trip Planner</title>
+    <link rel="icon" href="assets/euro-avocado.png" />
+    <link rel="stylesheet" href="styles.css?v=20" />
+  </head>
+  <body>
+    <div class="app-shell" data-theme="coast">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <img class="brand-mascot" src="assets/euro-avocado.png" alt="Happy avocado mascot in a beret and Italian scarf" />
+          <div>
+            <p class="eyebrow">Auckland to Europe</p>
+            <h1 id="tripTitle">Europe 2027</h1>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <label class="select-label">
+            Theme
+            <select id="themeSelect">
+              <option value="coast">Donegal coast</option>
+              <option value="terracotta">Italian evening</option>
+              <option value="metro">City hop</option>
+            </select>
+          </label>
+          <label class="select-label">
+            Voting as
+            <select id="viewerRoleSelect">
+              <option value="ruairi">Ruairi</option>
+              <option value="maggie">Maggie</option>
+            </select>
+          </label>
+          <span class="sync-status" id="syncStatus">Local save</span>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero-panel">
+          <div class="hero-visual" aria-hidden="true">
+            <div class="photo-tile photo-ireland"></div>
+            <div class="photo-tile photo-italy"></div>
+            <div class="photo-tile photo-paris"></div>
+            <div class="photo-tile photo-london"></div>
+          </div>
+          <div class="hero-copy">
+            <p class="eyebrow">Shared planning room</p>
+            <h2>Pick the route, vote on the good bits, and keep the budget honest.</h2>
+            <div class="summary-grid">
+              <div>
+                <span id="summaryDays">0</span>
+                <small>planned nights</small>
+              </div>
+              <div>
+                <span id="summaryCost">$0</span>
+                <small>estimated NZD total</small>
+              </div>
+              <div>
+                <span id="summaryVotes">0</span>
+                <small>shared yes votes</small>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <nav class="tabbar" aria-label="Planner sections">
+          <button class="tab is-active" data-tab="overview">Overview</button>
+          <button class="tab" data-tab="destinations">Destinations</button>
+          <button class="tab" data-tab="timing">Timing</button>
+          <button class="tab" data-tab="flights">Flights</button>
+          <button class="tab" data-tab="budget">Budget</button>
+          <button class="tab" data-tab="howto">How to</button>
+        </nav>
+
+        <section class="tab-panel is-active" id="overview">
+          <div class="section-heading overview-heading">
+            <div>
+              <p class="eyebrow">Trip shape</p>
+              <h2>The current sketch</h2>
+            </div>
+            <button class="ghost-button" id="resetBtn">Reset sample plan</button>
+          </div>
+
+          <div class="overview-layout">
+            <div class="map-card" id="mapOverview"></div>
+            <div class="route-panel">
+              <div class="route-panel-heading">
+                <div>
+                  <p class="eyebrow">Route order</p>
+                  <h3>Chosen itinerary stops</h3>
+                </div>
+                <button class="primary-button" id="addStopBtn">Add stop</button>
+              </div>
+              <div class="itinerary-list" id="itineraryList"></div>
+            </div>
+            <form class="settings-panel" id="tripSettings">
+              <label>
+                Trip name
+                <input name="title" type="text" />
+              </label>
+              <label>
+                Start date
+                <input name="startDate" type="date" />
+              </label>
+              <label>
+                Planner 1
+                <input name="travelerA" type="text" />
+              </label>
+              <label>
+                Planner 2
+                <input name="travelerB" type="text" />
+              </label>
+              <label>
+                Budget style
+                <select name="scenario">
+                  <option value="lean">Lean</option>
+                  <option value="balanced">Balanced</option>
+                  <option value="comfort">Comfort</option>
+                </select>
+              </label>
+              <label>
+                Buffer %
+                <input name="bufferPercent" type="number" min="0" max="60" step="1" />
+              </label>
+            </form>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="destinations">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Votes and options</p>
+              <h2>Where the trip gets its flavour</h2>
+            </div>
+            <div class="heading-actions">
+              <button class="secondary-button" id="addDestinationBtn">Add destination</button>
+              <button class="primary-button" id="addIdeaBtn">Add idea</button>
+            </div>
+          </div>
+          <div class="destination-grid" id="destinationGrid"></div>
+        </section>
+
+        <section class="tab-panel" id="timing">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Dates and stopovers</p>
+              <h2>When to go, and where to break the long haul</h2>
+            </div>
+          </div>
+          <div class="timing-layout">
+            <div class="budget-card wide">
+              <div class="card-heading">
+                <div>
+                  <h3>Travel windows</h3>
+                  <p>Overall timing, adjusted by the places currently in the route.</p>
+                </div>
+              </div>
+              <div class="window-grid" id="windowGrid"></div>
+            </div>
+            <div class="budget-card wide">
+              <div class="card-heading">
+                <div>
+                  <h3>Destination timing fit</h3>
+                  <p>How each selected stop tends to feel in the chosen month.</p>
+                </div>
+              </div>
+              <div class="timing-matrix" id="timingMatrix"></div>
+            </div>
+            <div class="budget-card wide">
+              <div class="card-heading">
+                <div>
+                  <h3>Stopover shortlist</h3>
+                  <p>Break the Auckland-Europe haul somewhere that feels useful, not just random.</p>
+                </div>
+              </div>
+              <div class="stopover-grid" id="stopoverGrid"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="flights">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Route and price workflow</p>
+              <h2>Flights, trains, and quote tracking</h2>
+              <p class="section-note">Use this as a clean checklist: pick dates on Overview or Timing, open the right search link, then paste the price you actually find.</p>
+            </div>
+            <button class="primary-button" id="syncFlightBudgetBtn">Use quote total in budget</button>
+          </div>
+          <div class="flights-layout">
+            <div class="budget-card wide">
+              <div class="card-heading">
+                <div>
+                  <h3>Route legs</h3>
+                  <p>Built from the itinerary order and selected timing window.</p>
+                </div>
+              </div>
+              <div class="flight-search-grid" id="flightSearchGrid"></div>
+            </div>
+            <div class="budget-card wide">
+              <div class="card-heading">
+                <div>
+                  <h3>Quotes found</h3>
+                  <p>Enter real prices in NZD as you compare Skyscanner, Flight Centre, direct airlines, Eurostar, and rail sites.</p>
+                </div>
+              </div>
+              <div class="quote-list" id="quoteList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="budget">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Cost model</p>
+              <h2>Budget in NZD</h2>
+              <p class="section-note">Daily estimates are editable planning assumptions in NZD for two people. Flight prices become real only when you paste quotes from Skyscanner, Google Flights, Flight Centre, Eurostar, or airline sites into the Flights tab.</p>
+            </div>
+            <button class="secondary-button" id="addCostBtn">Add fixed cost</button>
+          </div>
+          <div class="budget-layout">
+            <div class="budget-card budget-hero-card">
+              <div class="budget-total">
+                <span>Total estimate</span>
+                <strong id="budgetTotal">$0</strong>
+              </div>
+              <div class="budget-bars" id="budgetBars"></div>
+            </div>
+            <div class="budget-card">
+              <h3>Budget snapshot</h3>
+              <div class="budget-snapshot" id="budgetSnapshot"></div>
+            </div>
+            <div class="budget-card">
+              <h3>Fixed costs</h3>
+              <div class="cost-list" id="fixedCostList"></div>
+            </div>
+            <div class="budget-card wide">
+              <h3>Destination daily assumptions</h3>
+              <div class="assumption-table" id="assumptionTable"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="howto">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Quick guide</p>
+              <h2>How this planner works</h2>
+            </div>
+          </div>
+          <div class="howto-grid">
+            <article class="howto-card">
+              <span>1</span>
+              <h3>Choose your role</h3>
+              <p>Use the Ruairi or Maggie link. Each person can only press their own vote button, so the yes votes stay honest.</p>
+            </article>
+            <article class="howto-card">
+              <span>2</span>
+              <h3>Add destinations</h3>
+              <p>Use Destinations to add countries or cities, set nights, and add ideas. New places get starter ideas and a representative image.</p>
+            </article>
+            <article class="howto-card">
+              <span>3</span>
+              <h3>Build the route</h3>
+              <p>The Overview tab is the working route. Add stops, reorder them, leave notes, and open the date chip when you want to set a range.</p>
+            </article>
+            <article class="howto-card">
+              <span>4</span>
+              <h3>Keep the money real</h3>
+              <p>The Budget tab estimates the trip from flights, daily costs, nights, mutual yes ideas, and a buffer.</p>
+            </article>
+            <article class="howto-card">
+              <span>5</span>
+              <h3>Shared saving</h3>
+              <p>When the status says Saved online, changes are stored on the shared planner so the other person can refresh and see them.</p>
+            </article>
+          </div>
+        </section>
+
+      </main>
+
+      <dialog id="ideaDialog">
+        <form id="ideaForm" class="dialog-card">
+          <h2>Add an idea</h2>
+          <label>
+            Destination
+            <select name="destinationId" id="ideaDestination"></select>
+          </label>
+          <label>
+            Idea
+            <input name="title" type="text" placeholder="e.g. Food tour in Rome" required />
+          </label>
+          <label>
+            Theme
+            <select name="theme">
+              <option value="Food">Food</option>
+              <option value="Family">Family</option>
+              <option value="Culture">Culture</option>
+              <option value="Adventure">Adventure</option>
+              <option value="Logistics">Logistics</option>
+            </select>
+          </label>
+          <label>
+            Estimated cost NZD
+            <input name="cost" type="number" min="0" step="10" value="120" />
+          </label>
+          <div class="dialog-actions">
+            <button type="button" class="secondary-button" id="cancelIdeaBtn">Cancel</button>
+            <button type="button" class="primary-button" id="saveIdeaBtn">Save idea</button>
+          </div>
+        </form>
+      </dialog>
+
+      <dialog id="destinationDialog">
+        <form id="destinationForm" class="dialog-card destination-dialog-card">
+          <h2>Add a destination</h2>
+          <label>
+            Quick pick
+            <select id="countryPresetSelect">
+              <option value="">Choose from Europe</option>
+            </select>
+          </label>
+          <div class="dialog-grid">
+            <label>
+              Destination
+              <input name="name" type="text" placeholder="e.g. Greece" required />
+            </label>
+            <label>
+              Country or region
+              <input name="country" type="text" placeholder="e.g. Greece" required />
+            </label>
+            <label>
+              Vibe <span class="help-dot" title="A short reminder of why this place is on the list, like Alps, food, islands, family, or museums.">?</span>
+              <input name="region" type="text" placeholder="e.g. Islands, ruins, food" />
+            </label>
+            <label>
+              Pace tag <span class="help-dot" title="A quick planning label for the role this stop plays, like City hit, Sun break, Wildcard, or Anchor stop.">?</span>
+              <input name="pace" type="text" placeholder="e.g. Wildcard" value="Wildcard" />
+            </label>
+            <label>
+              Nights
+              <input name="nights" type="number" min="1" max="30" step="1" value="4" />
+            </label>
+            <label>
+              Image URL
+              <input name="image" type="url" placeholder="Optional" />
+            </label>
+            <label>
+              Sleep / night
+              <input name="sleep" type="number" min="0" step="5" value="240" />
+            </label>
+            <label>
+              Food / day
+              <input name="food" type="number" min="0" step="5" value="145" />
+            </label>
+            <label>
+              Transport / day
+              <input name="transport" type="number" min="0" step="5" value="70" />
+            </label>
+            <label>
+              Fun / day
+              <input name="fun" type="number" min="0" step="5" value="110" />
+            </label>
+          </div>
+          <label class="checkbox-row">
+            <input name="addToItinerary" type="checkbox" checked />
+            Add it to the itinerary too
+          </label>
+          <div class="dialog-actions">
+            <button type="button" class="secondary-button" id="cancelDestinationBtn">Cancel</button>
+            <button type="button" class="primary-button" id="saveDestinationBtn">Save destination</button>
+          </div>
+        </form>
+      </dialog>
+
+      <template id="destinationTemplate">
+        <article class="destination-card">
+          <div class="destination-media"></div>
+          <div class="destination-body">
+            <div class="destination-title-row">
+              <div>
+                <p class="eyebrow destination-region"></p>
+                <h3></h3>
+              </div>
+              <div class="destination-actions">
+                <span class="pill"></span>
+                <button class="delete-button destination-delete" title="Delete destination" aria-label="Delete destination">x</button>
+              </div>
+            </div>
+            <label class="nights-control">
+              Nights
+              <input class="destination-nights" type="number" min="1" max="30" step="1" />
+            </label>
+            <div class="idea-list"></div>
+          </div>
+        </article>
+      </template>
+    </div>
+    <script src="script.js?v=20"></script>
+  </body>
+</html>
