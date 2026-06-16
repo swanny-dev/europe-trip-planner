@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Europe 2027 Trip Planner</title>
     <link rel="icon" href="assets/euro-avocado.png" />
-    <link rel="stylesheet" href="styles.css?v=22" />
+    <link rel="stylesheet" href="styles.css?v=23" />
   </head>
   <body>
     <div class="app-shell" data-theme="coast">
@@ -17,7 +17,7 @@
             <h1 id="tripTitle">Europe 2027</h1>
           </div>
         </div>
-        <div class="topbar-actions">
+        <div class="topbar-actions" hidden>
           <label class="select-label">
             Theme
             <select id="themeSelect">
@@ -47,7 +47,7 @@
           </div>
           <div class="hero-copy">
             <p class="eyebrow">Shared planning room</p>
-            <h2>Pick the route, vote on the good bits, and keep the budget honest.</h2>
+            <h2>Shape the Europe trip together, one good idea at a time.</h2>
             <div class="summary-grid">
               <div>
                 <span id="summaryDays">0</span>
@@ -71,7 +71,7 @@
           <button class="tab" data-tab="timing">Timing</button>
           <button class="tab" data-tab="flights">Flights</button>
           <button class="tab" data-tab="budget">Budget</button>
-          <button class="tab" data-tab="howto">How to</button>
+          <button class="tab" data-tab="whiteboard">Whiteboard</button>
         </nav>
 
         <section class="tab-panel is-active" id="overview">
@@ -125,6 +125,31 @@
                 <input name="bufferPercent" type="number" min="0" max="60" step="1" />
               </label>
             </form>
+            <details class="howto-drawer">
+              <summary>How this planner works</summary>
+              <div class="howto-grid">
+                <article class="howto-card">
+                  <span>1</span>
+                  <h3>Use your own link</h3>
+                  <p>Ruairi and Maggie each get their own vote buttons from the share link.</p>
+                </article>
+                <article class="howto-card">
+                  <span>2</span>
+                  <h3>Choose the route</h3>
+                  <p>Overview holds the working route, nights, notes, and date ranges.</p>
+                </article>
+                <article class="howto-card">
+                  <span>3</span>
+                  <h3>Compare ideas</h3>
+                  <p>Destinations holds the actual options. Open previews, vote, and place dates.</p>
+                </article>
+                <article class="howto-card">
+                  <span>4</span>
+                  <h3>Keep prices current</h3>
+                  <p>Flight and train quotes feed into Budget as soon as you enter them.</p>
+                </article>
+              </div>
+            </details>
           </div>
         </section>
 
@@ -145,8 +170,8 @@
         <section class="tab-panel" id="timing">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">Dates and stopovers</p>
-              <h2>When to go, and where to break the long haul</h2>
+              <p class="eyebrow">Dates and season fit</p>
+              <h2>When to go</h2>
             </div>
           </div>
           <div class="timing-layout">
@@ -168,15 +193,6 @@
               </div>
               <div class="timing-matrix" id="timingMatrix"></div>
             </div>
-            <div class="budget-card wide">
-              <div class="card-heading">
-                <div>
-                  <h3>Stopover shortlist</h3>
-                  <p>Break the Auckland-Europe haul somewhere that feels useful, not just random.</p>
-                </div>
-              </div>
-              <div class="stopover-grid" id="stopoverGrid"></div>
-            </div>
           </div>
         </section>
 
@@ -187,9 +203,17 @@
               <h2>Flights, trains, and quote tracking</h2>
               <p class="section-note">Use this as a clean checklist: pick dates on Overview or Timing, open the right search link, then paste the price you actually find.</p>
             </div>
-            <button class="primary-button" id="syncFlightBudgetBtn">Use quote total in budget</button>
           </div>
           <div class="flights-layout">
+            <div class="budget-card wide">
+              <div class="card-heading">
+                <div>
+                  <h3>Stopover shortlist</h3>
+                  <p>Pick outbound and return stopovers. Selected stopovers also appear as shaded reference cards on Destinations.</p>
+                </div>
+              </div>
+              <div class="stopover-grid" id="stopoverGrid"></div>
+            </div>
             <div class="budget-card wide">
               <div class="card-heading">
                 <div>
@@ -243,39 +267,23 @@
           </div>
         </section>
 
-        <section class="tab-panel" id="howto">
+        <section class="tab-panel" id="whiteboard">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">Quick guide</p>
-              <h2>How this planner works</h2>
+              <p class="eyebrow">Loose thoughts</p>
+              <h2>Whiteboard</h2>
+              <p class="section-note">A shared pinboard for half-formed ideas, links, reminders, and things to discuss later.</p>
             </div>
           </div>
-          <div class="howto-grid">
-            <article class="howto-card">
-              <span>1</span>
-              <h3>Choose your role</h3>
-              <p>Use the Ruairi or Maggie link. Each person can only press their own vote button, so the yes votes stay honest.</p>
-            </article>
-            <article class="howto-card">
-              <span>2</span>
-              <h3>Add destinations</h3>
-              <p>Use Destinations to add countries or cities, set nights, and add ideas. New places get starter ideas and a representative image.</p>
-            </article>
-            <article class="howto-card">
-              <span>3</span>
-              <h3>Build the route</h3>
-              <p>The Overview tab is the working route. Add stops, reorder them, leave notes, and open the date chip when you want to set a range.</p>
-            </article>
-            <article class="howto-card">
-              <span>4</span>
-              <h3>Keep the money real</h3>
-              <p>The Budget tab estimates the trip from flights, daily costs, nights, mutual yes ideas, and a buffer.</p>
-            </article>
-            <article class="howto-card">
-              <span>5</span>
-              <h3>Shared saving</h3>
-              <p>When the status says Saved online, changes are stored on the shared planner so the other person can refresh and see them.</p>
-            </article>
+          <div class="whiteboard-layout">
+            <form class="whiteboard-composer" id="whiteboardForm">
+              <label>
+                New note
+                <textarea name="note" rows="4" placeholder="e.g. What if we added Greece after Italy?"></textarea>
+              </label>
+              <button type="submit" class="primary-button">Pin note</button>
+            </form>
+            <div class="whiteboard-board" id="whiteboardBoard"></div>
           </div>
         </section>
 
@@ -398,6 +406,6 @@
         </article>
       </template>
     </div>
-    <script src="script.js?v=22"></script>
+    <script src="script.js?v=23"></script>
   </body>
 </html>

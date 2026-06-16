@@ -8,6 +8,7 @@ const sampleTrip = {
   theme: "coast",
   scenario: "balanced",
   bufferPercent: 12,
+  whiteboardNotes: [],
   destinations: [
     {
       id: "ireland",
@@ -35,7 +36,6 @@ const sampleTrip = {
       daily: { sleep: 310, food: 165, transport: 58, fun: 120 },
       ideas: [
         { id: "l1", title: "West End show night", theme: "Culture", cost: 320, votes: [true, true] },
-        { id: "l2", title: "Borough Market and Southbank wander", theme: "Food", cost: 110, votes: [true, true] },
         { id: "l3", title: "Day trip to Oxford or Brighton", theme: "Adventure", cost: 210, votes: [false, true] }
       ]
     },
@@ -113,15 +113,12 @@ const recommendedIdeas = {
   ],
   "London": [
     ["lon-west-end", "West End show night", "Culture", 320, [true, true]],
-    ["lon-borough", "Borough Market and Southbank wander", "Food", 110, [true, true]],
     ["lon-hp-studio", "Warner Bros. Studio Tour London: Harry Potter", "Culture", 360, [false, true]],
     ["lon-platform", "Platform 9 3/4 at King's Cross", "Culture", 40, [false, true]],
     ["lon-minalima", "House of MinaLima Harry Potter design shop", "Culture", 60, [false, true]],
     ["lon-leadenhall", "Leadenhall Market / Diagon Alley walk", "Culture", 40, [false, true]],
     ["lon-british", "British Museum or National Gallery", "Culture", 40, [false, false]],
-    ["lon-oxford", "Day trip to Oxford or Brighton", "Adventure", 210, [false, true]],
-    ["lon-camden", "Camden or Shoreditch food crawl", "Food", 140, [true, false]],
-    ["lon-skygarden", "Sky Garden or river view drinks", "Food", 150, [false, false]]
+    ["lon-oxford", "Day trip to Oxford or Brighton", "Adventure", 210, [false, true]]
   ],
   "Paris": [
     ["par-eurostar", "Eurostar from London", "Logistics", 340, [true, true]],
@@ -186,25 +183,47 @@ const recommendedIdeas = {
 };
 
 const ideaVisuals = {
+  "irl-family-week": {
+    image: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Slieve_League-cliffs.jpg",
+    caption: "The Donegal base is the anchor: family time, coast, and slower days."
+  },
   "irl-slieve": {
     image: "https://commons.wikimedia.org/wiki/Special:FilePath/Slieve_League-cliffs.jpg",
     caption: "Clifftop Donegal scenery for a Wild Atlantic Way day."
+  },
+  "irl-glenveagh": {
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Glenveagh_Castle_-_Lough_Veagh.JPG",
+    caption: "Castle, gardens, lake, and national-park scenery for a Donegal day."
+  },
+  "irl-giants": {
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Giant%27s_Causeway_(14).JPG",
+    caption: "A bigger northern-coast add-on if the Ireland routing makes sense."
+  },
+  "lon-hp-studio": {
+    image: "https://images.unsplash.com/photo-1598153346810-860daa814c4b?auto=format&fit=crop&w=1000&q=78",
+    caption: "A full Harry Potter studio day rather than just a quick city photo stop."
+  },
+  "lon-platform": {
+    image: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1000&q=78",
+    caption: "A quick King's Cross Harry Potter stop, easy to fold into a London day."
   },
   "lon-leadenhall": {
     image: "https://commons.wikimedia.org/wiki/Special:FilePath/Leadenhall_Market,_London.jpg",
     caption: "Covered Victorian market streets with a Diagon Alley kind of feel."
   },
-  "lon-skygarden": {
-    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Sky_Garden_London.jpg",
-    caption: "A city-view option for a lighter London evening."
+  "par-montmartre": {
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Montmartre_Paris.jpg",
+    caption: "Hilly village-feel Paris: Sacre-Coeur, cafes, and wandering streets."
   },
   "ita-colosseum": {
     image: "https://commons.wikimedia.org/wiki/Special:FilePath/Colosseum_in_Rome,_Italy_-_April_2007.jpg",
     caption: "Classic ancient Rome: big, busy, and very worth booking ahead."
+  },
+  "ice-road": {
+    image: "https://images.unsplash.com/photo-1504829857797-ddff29c27927?auto=format&fit=crop&w=1000&q=78",
+    caption: "Waterfalls and road-trip scenery if Iceland becomes a serious wildcard."
   }
 };
-
-const generatedIdeaIds = new Set(Object.values(recommendedIdeas).flatMap((ideas) => ideas.map(([id]) => id)));
 
 const countryPresets = [
   ["Albania", "Riviera, mountains, value", "Wildcard", 5, 150, 85, 55, 75],
@@ -256,11 +275,10 @@ const timingWindows = [
 ];
 
 const stopoverOptions = [
-  { id: "singapore", city: "Singapore", airport: "SIN", score: 86, cost: 260, note: "Easy, clean, great food, gentle first stop from Auckland.", bestFor: "Food, gardens, pool recovery", sample: "Hawker dinner, Gardens by the Bay, airport hotel sleep", caution: "Very low-friction, but humid if you leave the airport." },
-  { id: "dubai", city: "Dubai", airport: "DXB", score: 78, cost: 230, note: "Very common Europe connector with Emirates; hot if you leave the airport.", bestFor: "Simple Emirates routing", sample: "Old Dubai creek, mall/food stop, hotel sleep", caution: "Can be brutally hot in July and August." },
-  { id: "doha", city: "Doha", airport: "DOH", score: 74, cost: 220, note: "Qatar routing, often efficient fares, compact stopover.", bestFor: "Efficient fares and short layovers", sample: "Souq Waqif, museum/corniche, airport hotel", caution: "Great logistics, less natural as a mini-holiday." },
-  { id: "hongkong", city: "Hong Kong", airport: "HKG", score: 72, cost: 240, note: "Brilliant food stop, can work well depending on airline pricing.", bestFor: "Food and skyline energy", sample: "Dim sum, Star Ferry, Victoria Peak if time allows", caution: "Routing can be less direct depending on fares." },
-  { id: "istanbul", city: "Istanbul", airport: "IST", score: 80, cost: 260, note: "Adds a proper mini-destination, especially if flying Turkish into Europe.", bestFor: "A stopover that feels like a real stop", sample: "Sultanahmet, Bosphorus, baklava/coffee wander", caution: "More rewarding if you give it at least one night." }
+  { id: "singapore", city: "Singapore", country: "Singapore", airport: "SIN", score: 86, cost: 260, image: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=1000&q=78", note: "Easy, clean, great food, gentle first stop from Auckland.", bestFor: "Food, gardens, pool recovery", sample: "Hawker dinner, Gardens by the Bay, airport hotel sleep", caution: "Very low-friction, but humid if you leave the airport." },
+  { id: "dubai", city: "Dubai", country: "United Arab Emirates", airport: "DXB", score: 78, cost: 230, image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1000&q=78", note: "Very common Europe connector with Emirates; hot if you leave the airport.", bestFor: "Simple Emirates routing", sample: "Old Dubai creek, mall/food stop, hotel sleep", caution: "Can be brutally hot in July and August." },
+  { id: "bangkok", city: "Bangkok", country: "Thailand", airport: "BKK", score: 76, cost: 220, image: "https://commons.wikimedia.org/wiki/Special:FilePath/Bangkok_skytrain_sunset.jpg", note: "Food-first stopover with a very different feel before Europe.", bestFor: "Street food, markets, value", sample: "Hotel sleep, Thai dinner, massage, short city wander", caution: "Can add routing complexity depending on airline pricing." },
+  { id: "doha", city: "Doha", country: "Qatar", airport: "DOH", score: 74, cost: 220, image: "https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?auto=format&fit=crop&w=1000&q=78", note: "Qatar routing, often efficient fares, compact stopover.", bestFor: "Efficient fares and short layovers", sample: "Souq Waqif, museum/corniche, airport hotel", caution: "Great logistics, less natural as a mini-holiday." }
 ];
 
 const destinationClimate = {
@@ -357,6 +375,8 @@ const flightSearchGrid = document.querySelector("#flightSearchGrid");
 const quoteList = document.querySelector("#quoteList");
 const budgetSnapshot = document.querySelector("#budgetSnapshot");
 const syncStatus = document.querySelector("#syncStatus");
+const whiteboardForm = document.querySelector("#whiteboardForm");
+const whiteboardBoard = document.querySelector("#whiteboardBoard");
 
 let remoteReady = false;
 let applyingRemoteTrip = false;
@@ -451,14 +471,33 @@ function ideasCost() {
   }, 0);
 }
 
+function quoteTotal() {
+  return (trip.flightQuotes || []).reduce((sum, quote) => sum + Number(quote.amount || 0), 0);
+}
+
+function isTravelAllowance(cost) {
+  return /flight|train|rail|connection/i.test(`${cost.id || ""} ${cost.name || ""}`);
+}
+
 function calculateBudget() {
   const stays = trip.destinations.reduce((sum, destination) => sum + destinationCost(destination), 0);
-  const fixed = trip.fixedCosts.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const fixedCosts = trip.fixedCosts.filter((item) => item.id !== "flight-live");
+  const travelAllowance = fixedCosts
+    .filter(isTravelAllowance)
+    .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const fixed = fixedCosts
+    .filter((item) => !isTravelAllowance(item))
+    .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const quotes = quoteTotal();
+  const travel = quotes || travelAllowance;
   const ideas = ideasCost();
-  const subtotal = stays + fixed + ideas;
+  const subtotal = stays + fixed + travel + ideas;
   const buffer = subtotal * (Number(trip.bufferPercent || 0) / 100);
   return {
     fixed,
+    travel,
+    travelAllowance,
+    quotes,
     stays,
     ideas,
     buffer,
@@ -470,6 +509,7 @@ function render() {
   normalizeTrip();
   deriveStopDates();
   syncStartDateFromFirstStop();
+  syncQuoteRows(buildFlightSearches());
   saveTrip();
   const lockedRole = roleFromUrl();
   appShell.dataset.theme = trip.theme;
@@ -478,9 +518,7 @@ function render() {
   viewerRoleSelect.disabled = Boolean(lockedRole);
   viewerRoleSelect.title = lockedRole ? "This role is set by the share link" : "";
   tripTitle.textContent = trip.title;
-  document.querySelector("#summaryDays").textContent = trip.destinations.reduce((sum, destination) => sum + Number(destination.nights || 0), 0);
-  document.querySelector("#summaryCost").textContent = money(calculateBudget().total);
-  document.querySelector("#summaryVotes").textContent = trip.destinations.flatMap((destination) => destination.ideas).reduce((sum, idea) => sum + idea.votes.filter(Boolean).length, 0);
+  renderSummary();
   renderSettings();
   renderMap();
   renderDestinations();
@@ -490,7 +528,14 @@ function render() {
   renderCountryPresets();
   renderTiming();
   renderFlights();
+  renderWhiteboard();
   resolveMissingDestinationImages();
+}
+
+function renderSummary() {
+  document.querySelector("#summaryDays").textContent = trip.destinations.reduce((sum, destination) => sum + Number(destination.nights || 0), 0);
+  document.querySelector("#summaryCost").textContent = money(calculateBudget().total);
+  document.querySelector("#summaryVotes").textContent = trip.destinations.flatMap((destination) => destination.ideas).reduce((sum, idea) => sum + idea.votes.filter(Boolean).length, 0);
 }
 
 function renderSettings() {
@@ -527,6 +572,7 @@ function renderDestinations() {
     const node = destinationTemplate.content.cloneNode(true);
     const card = node.querySelector(".destination-card");
     card.dataset.id = destination.id;
+    card.classList.toggle("is-stopover", Boolean(destination.isStopover));
     const media = node.querySelector(".destination-media");
     if (destination.image) {
       media.style.backgroundImage = `linear-gradient(135deg, rgba(18, 24, 22, 0.06), rgba(18, 24, 22, 0.24)), url("${destination.image}")`;
@@ -545,7 +591,7 @@ function renderDestinations() {
       <div class="score-track"><div class="score-fill" style="width:${Math.min(100, (yesCount / Math.max(1, destination.nights)) * 100)}%"></div></div>
     `;
     const deleteButton = node.querySelector(".destination-delete");
-    deleteButton.hidden = trip.destinations.length < 2;
+    deleteButton.hidden = trip.destinations.length < 2 || destination.isStopover;
     deleteButton.addEventListener("click", () => {
       trip.destinations = trip.destinations.filter((entry) => entry.id !== destination.id);
       trip.itinerary = trip.itinerary.filter((entry) => entry.destinationId !== destination.id);
@@ -610,14 +656,7 @@ function createIdeaItem(destination, idea) {
 function ideaVisualFor(idea, destination) {
   const visual = idea.visual || ideaVisuals[idea.id];
   if (visual?.image) return visual;
-  const isGenerated = generatedIdeaIds.has(idea.id) || /-(signature|food|wander)$/.test(idea.id);
-  if (!isGenerated) return null;
-  const image = destination.image || imageForCountry(destination.country || destination.name);
-  if (!image) return null;
-  return {
-    image,
-    caption: `A quick visual cue for ${destination.name}.`
-  };
+  return null;
 }
 
 function ideaVisualDetails(visual) {
@@ -641,6 +680,10 @@ function viewerRole() {
   return role === "maggie" ? "maggie" : "ruairi";
 }
 
+function viewerName() {
+  return viewerRole() === "maggie" ? trip.travelerB : trip.travelerA;
+}
+
 function roleFromUrl() {
   return normalizeRole(new URLSearchParams(window.location.search).get("role"));
 }
@@ -655,7 +698,8 @@ function renderBudget() {
   const budget = calculateBudget();
   budgetTotal.textContent = money(budget.total);
   const rows = [
-    ["Flights and fixed costs", budget.fixed],
+    ["Admin and other fixed costs", budget.fixed],
+    [budget.quotes ? "Flight and rail quotes" : "Flight and rail allowance", budget.travel],
     ["Stays and daily spend", budget.stays],
     ["Mutual yes ideas", budget.ideas],
     ["Buffer", budget.buffer]
@@ -679,11 +723,13 @@ function renderBudget() {
 function renderBudgetSnapshot(budget) {
   const nights = trip.destinations.reduce((sum, destination) => sum + Number(destination.nights || 0), 0);
   const perNight = nights ? Math.round(budget.total / nights) : 0;
-  const quoteTotal = (trip.flightQuotes || []).reduce((sum, quote) => sum + Number(quote.amount || 0), 0);
+  const quoteAmount = quoteTotal();
+  const budgetWithoutBuffer = budget.total - budget.buffer;
   budgetSnapshot.innerHTML = `
     <div><span>Trip length</span><strong>${nights} nights</strong></div>
     <div><span>Avg per night</span><strong>${money(perNight)}</strong></div>
-    <div><span>Quote total</span><strong>${money(quoteTotal)}</strong></div>
+    <div><span>${quoteAmount ? "Quote total" : "Travel allowance"}</span><strong>${money(quoteAmount || budget.travelAllowance)}</strong></div>
+    <div><span>Before buffer</span><strong>${money(budgetWithoutBuffer)}</strong></div>
     <div><span>Buffer</span><strong>${trip.bufferPercent}%</strong></div>
   `;
 }
@@ -737,6 +783,32 @@ function renderAssumptions() {
     transport.addEventListener("input", () => updateDaily(destination, "transport", transport.value));
     fun.addEventListener("input", () => updateDaily(destination, "fun", fun.value));
     assumptionTable.append(row);
+  });
+}
+
+function renderWhiteboard() {
+  if (!whiteboardBoard) return;
+  whiteboardBoard.innerHTML = "";
+  if (!trip.whiteboardNotes.length) {
+    whiteboardBoard.innerHTML = `<div class="empty-board">No pins yet. Add the messy stuff here before it becomes a real destination or idea.</div>`;
+    return;
+  }
+  trip.whiteboardNotes.forEach((note) => {
+    const card = document.createElement("article");
+    card.className = "whiteboard-note";
+    card.innerHTML = `
+      <p>${escapeHtml(note.text)}</p>
+      <div class="whiteboard-note-footer">
+        <span>${escapeHtml(note.author || "?")}</span>
+        <time>${formatShortDate(note.createdAt?.slice(0, 10)) || ""}</time>
+        <button class="delete-button" title="Delete note">&times;</button>
+      </div>
+    `;
+    card.querySelector("button").addEventListener("click", () => {
+      trip.whiteboardNotes = trip.whiteboardNotes.filter((entry) => entry.id !== note.id);
+      render();
+    });
+    whiteboardBoard.append(card);
   });
 }
 
@@ -824,9 +896,13 @@ function renderTiming() {
     const fit = timingFitForWindow(windowOption.id);
     const card = document.createElement("article");
     card.className = `window-card ${selected ? "is-selected" : ""}`;
+    const tag = timingWindowTag(windowOption);
     card.innerHTML = `
       <div class="window-card-top">
-        <h3>${windowOption.name}</h3>
+        <div>
+          <h3>${windowOption.name}</h3>
+          <span class="window-tag"><span>${tag.icon}</span>${tag.label}</span>
+        </div>
         <span class="fit-score" title="Route fit score">${fit}</span>
       </div>
       <p>${windowOption.note}</p>
@@ -846,78 +922,17 @@ function renderTiming() {
   });
 
   renderTimingMatrix();
-
-  stopoverGrid.innerHTML = "";
-  stopoverOptions.forEach((stopover) => {
-    const selected = trip.stopoverId === stopover.id;
-    const card = document.createElement("article");
-    card.className = `stopover-card ${selected ? "is-selected" : ""}`;
-    card.innerHTML = `
-      <h3>${stopover.city} (${stopover.airport})</h3>
-      <p>${stopover.note}</p>
-      ${scoreRow("Fit", stopover.score)}
-      <div class="detail-stack">
-        <span><strong>Best for</strong>${stopover.bestFor}</span>
-        <span><strong>Mini-plan</strong>${stopover.sample}</span>
-        <span><strong>Watch</strong>${stopover.caution}</span>
-      </div>
-      <span class="mini-meta">Suggested stopover allowance: ${money(stopover.cost)}</span>
-      <button class="${selected ? "primary-button" : "secondary-button"}">${selected ? "Selected" : "Pick stopover"}</button>
-    `;
-    card.querySelector("button").addEventListener("click", () => {
-      trip.stopoverId = stopover.id;
-      render();
-    });
-    stopoverGrid.append(card);
-  });
 }
 
-function renderTimingMatrix() {
-  const selectedWindow = timingWindows.find((windowOption) => windowOption.id === trip.timingWindowId) || timingWindows[1];
-  const itineraryStops = itineraryStopsInOrder();
-  timingMatrix.innerHTML = "";
-  itineraryStops.forEach(({ stop, destination }) => {
-    const climate = climateForDestination(destination);
-    const score = climate[selectedWindow.id] || 76;
-    const ideas = scheduledIdeasForDestination(destination);
-    const row = document.createElement("article");
-    row.className = "timing-fit-row";
-    row.innerHTML = `
-      <div>
-        <strong>${destination.name}</strong>
-        <span>${destination.nights} nights · ${selectedWindow.name}</span>
-      </div>
-      <div class="fit-score">${score}</div>
-      <label>
-        Arrival date
-        <input type="date" value="${stop.startDate || ""}" aria-label="${destination.name} arrival date" />
-      </label>
-      <p>${climate.note}</p>
-      <div class="scheduled-ideas">
-        ${ideas.length ? ideas.map((idea) => `
-          <label>
-            <span>${idea.title}</span>
-            <input type="date" value="${idea.date || ""}" data-idea-id="${idea.id}" aria-label="${idea.title} date" />
-          </label>
-        `).join("") : `<span class="mini-meta">Mutual yes ideas will appear here for day-by-day planning.</span>`}
-      </div>
-    `;
-    const arrivalInput = row.querySelector("label input");
-    arrivalInput.addEventListener("input", () => {
-      stop.startDate = arrivalInput.value;
-      render();
-    });
-    row.querySelectorAll(".scheduled-ideas input").forEach((input) => {
-      input.addEventListener("input", () => {
-        const idea = destination.ideas.find((entry) => entry.id === input.dataset.ideaId);
-        if (!idea) return;
-        idea.date = input.value;
-        saveTrip();
-        renderDestinations();
-      });
-    });
-    timingMatrix.append(row);
-  });
+function timingWindowTag(windowOption) {
+  const tags = {
+    may: { icon: "&#9675;", label: "Calmer crowds" },
+    june: { icon: "&#9680;", label: "Best balance" },
+    july: { icon: "&#9728;", label: "Hottest weather" },
+    august: { icon: "&#9650;", label: "Peak summer" },
+    sept: { icon: "&#9682;", label: "Shoulder sweet spot" }
+  };
+  return tags[windowOption.id] || { icon: "&#9675;", label: "Timing option" };
 }
 
 function renderTimingMatrix() {
@@ -940,14 +955,14 @@ function renderTimingMatrix() {
       ${scheduleDetails(`${destination.name} date range`, stop.startDate || "", stopEndDate || "", "Set dates", "timing-schedule")}
       <p class="timing-note">${climate.note}</p>
       <details class="scheduled-ideas-block">
-        <summary>${ideas.length ? `${ideas.length} idea${ideas.length === 1 ? "" : "s"} to place` : "No ideas placed yet"}</summary>
+        <summary>${ideas.length ? `${ideas.length} idea${ideas.length === 1 ? "" : "s"} to place` : "No ideas yet"}</summary>
         <div class="scheduled-idea-list">
           ${ideas.length ? ideas.map((idea) => `
             <div class="scheduled-idea-row" data-idea-id="${idea.id}">
               <span>${idea.title}</span>
               ${scheduleDetails(`${idea.title} date range`, idea.startDate || idea.date || "", idea.endDate || "", "Set dates", "idea-schedule")}
             </div>
-          `).join("") : `<span class="mini-meta">Mutual yes ideas and manually dated ideas will appear here.</span>`}
+          `).join("") : `<span class="mini-meta">Ideas added on Destinations will appear here.</span>`}
         </div>
       </details>
     `;
@@ -977,7 +992,7 @@ function renderTimingMatrix() {
 }
 
 function scheduledIdeasForDestination(destination) {
-  return destination.ideas.filter((idea) => idea.votes.every(Boolean) || idea.date || idea.startDate || idea.endDate).slice(0, 6);
+  return destination.ideas.slice(0, 8);
 }
 
 function timingFitForWindow(windowId) {
@@ -1004,6 +1019,7 @@ function climateForDestination(destination) {
 function renderFlights() {
   const searches = buildFlightSearches();
   syncQuoteRows(searches);
+  renderStopovers();
   flightSearchGrid.innerHTML = "";
   searches.forEach((search, index) => {
     const card = document.createElement("article");
@@ -1011,10 +1027,10 @@ function renderFlights() {
     const quote = trip.flightQuotes.find((entry) => entry.id === search.id);
     card.innerHTML = `
       <div class="leg-topline">
-        <span>${index + 1}</span>
+        <span>${travelIcon(search.mode)}</span>
         <strong>${search.mode}</strong>
       </div>
-      <h3>${search.label}</h3>
+      <h3>${index + 1}. ${search.label}</h3>
       <p>${search.from} to ${search.to}${search.date ? ` · target ${formatDate(search.date)}` : " · date to confirm"}</p>
       <div class="mini-meta">${search.hint}</div>
       <div class="link-row">
@@ -1032,6 +1048,7 @@ function renderFlights() {
       if (!quote) return;
       quote.amount = Number(quoteInput.value);
       saveTrip();
+      renderSummary();
       renderBudget();
     });
     flightSearchGrid.append(card);
@@ -1049,6 +1066,7 @@ function renderFlights() {
         <option ${quote.source === "Google Flights" ? "selected" : ""}>Google Flights</option>
         <option ${quote.source === "Flight Centre" ? "selected" : ""}>Flight Centre</option>
         <option ${quote.source === "Airline direct" ? "selected" : ""}>Airline direct</option>
+        <option ${quote.source === "Rail operator" ? "selected" : ""}>Rail operator</option>
       </select>
       <button class="delete-button" title="Clear quote">&times;</button>
     `;
@@ -1057,6 +1075,7 @@ function renderFlights() {
     amountInput.addEventListener("input", () => {
       quote.amount = Number(amountInput.value);
       saveTrip();
+      renderSummary();
       renderBudget();
     });
     sourceSelect.addEventListener("change", () => {
@@ -1069,6 +1088,73 @@ function renderFlights() {
     });
     quoteList.append(row);
   });
+}
+
+function renderStopovers() {
+  stopoverGrid.innerHTML = "";
+  stopoverOptions.forEach((stopover) => {
+    const selectedOutbound = trip.stopoverId === stopover.id;
+    const selectedReturn = trip.returnStopoverId === stopover.id;
+    const card = document.createElement("article");
+    card.className = `stopover-card ${(selectedOutbound || selectedReturn) ? "is-selected" : ""}`;
+    card.innerHTML = `
+      <div class="stopover-image" style="background-image:url('${stopover.image}')"></div>
+      <div class="stopover-body">
+        <div class="stopover-title-row">
+          <h3>${stopover.city} (${stopover.airport})</h3>
+          <span class="fit-score">${stopover.score}</span>
+        </div>
+        <p>${stopover.note}</p>
+        <div class="detail-stack">
+          <span><strong>Best for</strong>${stopover.bestFor}</span>
+          <span><strong>Mini-plan</strong>${stopover.sample}</span>
+          <span><strong>Watch</strong>${stopover.caution}</span>
+        </div>
+        <span class="mini-meta">Suggested stopover allowance: ${money(stopover.cost)}</span>
+        <div class="stopover-actions">
+          <button class="${selectedOutbound ? "primary-button" : "secondary-button"}" data-stopover-leg="outbound">${selectedOutbound ? "Outbound stop" : "Use outbound"}</button>
+          <button class="${selectedReturn ? "primary-button" : "secondary-button"}" data-stopover-leg="return">${selectedReturn ? "Return stop" : "Use return"}</button>
+        </div>
+      </div>
+    `;
+    card.querySelectorAll("button").forEach((button) => {
+      button.addEventListener("click", () => {
+        const key = button.dataset.stopoverLeg === "return" ? "returnStopoverId" : "stopoverId";
+        trip[key] = trip[key] === stopover.id ? "" : stopover.id;
+        syncStopoverDestinations();
+        render();
+      });
+    });
+    stopoverGrid.append(card);
+  });
+}
+
+function syncStopoverDestinations() {
+  const selectedIds = new Set([trip.stopoverId, trip.returnStopoverId].filter(Boolean).map((id) => `stopover-${id}`));
+  trip.destinations = trip.destinations.filter((destination) => !destination.isStopover || selectedIds.has(destination.id));
+  [trip.stopoverId, trip.returnStopoverId].filter(Boolean).forEach((stopoverId) => {
+    const stopover = stopoverOptions.find((option) => option.id === stopoverId);
+    if (!stopover || trip.destinations.some((destination) => destination.id === `stopover-${stopover.id}`)) return;
+    trip.destinations.push({
+      id: `stopover-${stopover.id}`,
+      name: `${stopover.city} stopover`,
+      region: stopover.bestFor,
+      country: stopover.country,
+      nights: 1,
+      pace: "Stopover",
+      image: stopover.image,
+      isStopover: true,
+      daily: { sleep: stopover.cost, food: 120, transport: 45, fun: 80 },
+      ideas: [
+        { id: `stopover-${stopover.id}-mini`, title: stopover.sample, theme: "Stopover", cost: stopover.cost, votes: [false, false] }
+      ]
+    });
+  });
+}
+
+function travelIcon(mode) {
+  const icons = { Train: "&#128646;", Flight: "&#9992;" };
+  return icons[mode] || icons.Flight;
 }
 
 function scoreRow(label, score) {
@@ -1169,31 +1255,37 @@ function goodCommonsCandidate(candidate) {
 }
 
 function buildFlightSearches() {
-  const itineraryDestinations = itineraryDestinationsInOrder();
-  const first = itineraryDestinations[0] || trip.destinations[0];
-  const last = itineraryDestinations[itineraryDestinations.length - 1] || trip.destinations[trip.destinations.length - 1];
-  const selectedStopover = stopoverOptions.find((option) => option.id === trip.stopoverId);
-  const searches = [
-    { id: "outbound", label: `Long-haul outbound: Auckland to ${first.name}`, mode: "Flight", from: "AKL", to: airportFor(first), date: trip.startDate, hint: `${selectedStopover?.city || "Stopover"} is the current stopover idea. Search open-jaw options too.` },
-    { id: "return", label: `Long-haul return: ${last.name} to Auckland`, mode: "Flight", from: airportFor(last), to: "AKL", date: returnDate(), hint: "Compare returning from the final city versus a larger nearby hub." }
-  ];
-  let currentDate = trip.startDate || "";
-  for (let index = 0; index < itineraryDestinations.length - 1; index += 1) {
-    const fromDestination = itineraryDestinations[index];
-    const toDestination = itineraryDestinations[index + 1];
-    const mode = transferMode(fromDestination, toDestination);
-    if (currentDate) currentDate = addDays(currentDate, Number(fromDestination.nights || 0));
-    searches.push({
-      id: `leg-${index}`,
-      label: `Europe transfer: ${fromDestination.name} to ${toDestination.name}`,
-      mode,
-      from: airportFor(fromDestination),
-      to: airportFor(toDestination),
-      date: currentDate,
-      hint: mode === "Train" ? "Train is probably the first option to check before flights." : "Check direct flights first, then compare total travel time."
-    });
+  const stops = itineraryDestinationsInOrder().filter((destination) => !destination.isStopover);
+  const first = stops[0] || trip.destinations[0];
+  const last = stops[stops.length - 1] || trip.destinations[trip.destinations.length - 1];
+  const outboundStopover = stopoverOptions.find((option) => option.id === trip.stopoverId);
+  const returnStopover = stopoverOptions.find((option) => option.id === trip.returnStopoverId);
+  const searches = [];
+
+  if (outboundStopover) {
+    searches.push({ id: "outbound-akl-stopover", label: `Auckland to ${outboundStopover.city}`, mode: "Flight", from: "AKL", to: outboundStopover.airport, date: trip.startDate, hint: "First long-haul leg. Compare fare, arrival time, and stopover hotel cost." });
+    searches.push({ id: "outbound-stopover-dublin", label: `${outboundStopover.city} to Dublin`, mode: "Flight", from: outboundStopover.airport, to: "DUB", date: trip.startDate, hint: "Second long-haul leg into Ireland. Check whether a through-ticket is cheaper." });
+  } else {
+    searches.push({ id: "outbound-akl-dublin", label: "Auckland to Dublin", mode: "Flight", from: "AKL", to: "DUB", date: trip.startDate, hint: "Baseline no-stopover search for comparison." });
   }
+
+  searches.push({ id: "dublin-london", label: "Dublin to London", mode: "Flight", from: "DUB", to: "LON", date: dateForDestination("london"), hint: "Likely a short flight. Compare airport choice with the London stay location." });
+  searches.push({ id: "london-paris", label: "London to Paris", mode: "Train", from: "London", to: "Paris", date: dateForDestination("paris"), hint: "Eurostar is the natural first check." });
+  searches.push({ id: "paris-italy", label: "Paris to Italy", mode: "Train", from: "Paris", to: "Italy", date: dateForDestination("italy"), hint: "Start with rail options, then compare against a flight if the timing is awkward." });
+
+  if (returnStopover) {
+    searches.push({ id: "italy-return-stopover", label: `Italy to ${returnStopover.city}`, mode: "Flight", from: airportFor(last), to: returnStopover.airport, date: returnDate(), hint: "First return leg. Check if flying from Rome, Milan, or Venice changes the price." });
+    searches.push({ id: "return-stopover-akl", label: `${returnStopover.city} to Auckland`, mode: "Flight", from: returnStopover.airport, to: "AKL", date: returnDate(), hint: "Final long-haul leg home." });
+  } else {
+    searches.push({ id: "italy-akl", label: "Italy to Auckland", mode: "Flight", from: airportFor(last), to: "AKL", date: returnDate(), hint: "Baseline no-stopover return search." });
+  }
+
   return searches;
+}
+
+function dateForDestination(destinationId) {
+  const stop = trip.itinerary.find((entry) => entry.destinationId === destinationId);
+  return stop?.startDate || "";
 }
 
 function itineraryDestinationsInOrder() {
@@ -1322,9 +1414,11 @@ function transferMode(fromDestination, toDestination) {
 
 function syncQuoteRows(searches) {
   trip.flightQuotes = trip.flightQuotes || [];
+  const searchIds = new Set(searches.map((search) => search.id));
+  trip.flightQuotes = trip.flightQuotes.filter((quote) => searchIds.has(quote.id));
   searches.forEach((search) => {
     if (!trip.flightQuotes.some((quote) => quote.id === search.id)) {
-      trip.flightQuotes.push({ id: search.id, label: search.label, amount: 0, source: "Skyscanner" });
+      trip.flightQuotes.push({ id: search.id, label: search.label, amount: 0, source: search.mode === "Train" ? "Rail operator" : "Skyscanner" });
     }
   });
   trip.flightQuotes.forEach((quote) => {
@@ -1355,6 +1449,8 @@ function googleFlightsUrl(search) {
 function normalizeTrip() {
   if (!trip.travelerA || trip.travelerA === "You" || trip.travelerA === "Rory") trip.travelerA = "Ruairi";
   if (!trip.travelerB || trip.travelerB === "Her") trip.travelerB = "Maggie";
+  const removedIdeaIds = new Set(["lon-borough", "lon-camden", "lon-skygarden"]);
+  const removedIdeaTitles = new Set(["Borough Market and Southbank wander", "Camden or Shoreditch food crawl", "Sky Garden or river view drinks"]);
   trip.destinations = (trip.destinations || []).map((destination) => ({
     id: destination.id || newId(),
     name: destination.name || "New destination",
@@ -1363,13 +1459,14 @@ function normalizeTrip() {
     nights: Number(destination.nights || 1),
     pace: destination.pace || "Option",
     image: needsImageLookup(destination.image) ? imageForCountry(destination.country || destination.name) : destination.image,
+    isStopover: Boolean(destination.isStopover),
     daily: {
       sleep: Number(destination.daily?.sleep || 0),
       food: Number(destination.daily?.food || 0),
       transport: Number(destination.daily?.transport || 0),
       fun: Number(destination.daily?.fun || 0)
     },
-    ideas: (destination.ideas || []).map((idea) => ({
+    ideas: (destination.ideas || []).filter((idea) => !removedIdeaIds.has(idea.id) && !removedIdeaTitles.has(idea.title)).map((idea) => ({
       id: idea.id || newId(),
       title: idea.title || "New idea",
       theme: idea.theme || "Adventure",
@@ -1381,10 +1478,23 @@ function normalizeTrip() {
       votes: Array.isArray(idea.votes) ? [Boolean(idea.votes[0]), Boolean(idea.votes[1])] : [false, false]
     }))
   }));
-  trip.fixedCosts = trip.fixedCosts || [];
+  trip.fixedCosts = (trip.fixedCosts || []).filter((cost) => cost.id !== "flight-live");
   trip.timingWindowId = trip.timingWindowId || "june";
-  trip.stopoverId = trip.stopoverId || "singapore";
+  if (!trip.stopoverChoiceVersion) {
+    trip.stopoverId = "";
+    trip.returnStopoverId = "";
+    trip.stopoverChoiceVersion = 1;
+  }
+  trip.stopoverId = stopoverOptions.some((option) => option.id === trip.stopoverId) ? trip.stopoverId : "";
+  trip.returnStopoverId = stopoverOptions.some((option) => option.id === trip.returnStopoverId) ? trip.returnStopoverId : "";
   trip.flightQuotes = trip.flightQuotes || [];
+  trip.whiteboardNotes = (trip.whiteboardNotes || []).map((note) => ({
+    id: note.id || newId(),
+    text: note.text || "",
+    author: note.author || initials(viewerName()),
+    createdAt: note.createdAt || new Date().toISOString()
+  })).filter((note) => note.text.trim());
+  syncStopoverDestinations();
   trip.itinerary = (trip.itinerary || [])
     .filter((stop) => trip.destinations.some((destination) => destination.id === stop.destinationId))
     .map((stop) => ({
@@ -1595,14 +1705,18 @@ document.querySelector("#addCostBtn").addEventListener("click", () => {
   render();
 });
 
-document.querySelector("#syncFlightBudgetBtn").addEventListener("click", () => {
-  const quoteTotal = (trip.flightQuotes || []).reduce((sum, quote) => sum + Number(quote.amount || 0), 0);
-  let flightCost = trip.fixedCosts.find((cost) => cost.id === "flight-live");
-  if (!flightCost) {
-    flightCost = { id: "flight-live", name: "Live flight quotes", amount: 0 };
-    trip.fixedCosts.unshift(flightCost);
-  }
-  flightCost.amount = quoteTotal;
+whiteboardForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const textarea = field(whiteboardForm, "note");
+  const text = String(textarea.value || "").trim();
+  if (!text) return;
+  trip.whiteboardNotes.unshift({
+    id: newId(),
+    text,
+    author: initials(viewerName()),
+    createdAt: new Date().toISOString()
+  });
+  textarea.value = "";
   render();
 });
 
